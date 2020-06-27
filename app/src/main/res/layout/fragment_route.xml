@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/simple_info">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:elevation="@dimen/elevation_default"
+        android:background="@drawable/lrb_corner_shape_white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="@dimen/default_icon_size"
+                android:layout_height="@dimen/default_icon_size"
+                android:layout_margin="@dimen/default_icon_margin"
+                android:src="@drawable/back"
+                android:scaleType="fitXY"
+                android:background="@null"
+                android:contentDescription="@string/back" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="5dp"
+                android:orientation="vertical"
+                android:background="@drawable/corner_shape">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/default_icon_size"
+                        android:layout_height="@dimen/default_icon_size"
+                        android:src="@drawable/origin" />
+                    <EditText
+                        android:id="@+id/input_origin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:hint="@string/input_origin"
+                        android:lines="1"
+                        android:inputType="text"
+                        android:imeOptions="actionDone"
+                        android:textCursorDrawable="@drawable/default_cursor"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/route_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginLeft="7dp"
+                        android:layout_marginRight="7dp"
+                        android:src="@drawable/ellipsis_v" />
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/horizontal_divider" />
+                </LinearLayout>
+
+<!--                <ListView-->
+<!--                    android:id="@+id/route_list"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:divider="@null" />-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical" >
+
+                    <ImageView
+                        android:layout_width="@dimen/default_icon_size"
+                        android:layout_height="@dimen/default_icon_size"
+                        android:src="@drawable/destination" />
+                    <EditText
+                        android:id="@+id/input_destination"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:hint="@string/input_destination"
+                        android:lines="1"
+                        android:inputType="text"
+                        android:imeOptions="actionDone"
+                        android:textCursorDrawable="@drawable/default_cursor" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/btn_swap_route"
+                    android:layout_width="@dimen/default_icon_size"
+                    android:layout_height="@dimen/default_icon_size"
+                    android:layout_margin="@dimen/default_icon_margin"
+                    android:src="@drawable/swap"
+                    android:scaleType="fitXY"
+                    android:background="@null"
+                    android:contentDescription="@string/add_point" />
+
+<!--                <ImageButton-->
+<!--                    android:id="@+id/btn_add_route"-->
+<!--                    android:layout_width="@dimen/default_icon_size"-->
+<!--                    android:layout_height="@dimen/default_icon_size"-->
+<!--                    android:layout_margin="@dimen/default_icon_margin"-->
+<!--                    android:padding="@dimen/default_icon_padding"-->
+<!--                    android:src="@drawable/btn_add_selector"-->
+<!--                    android:scaleType="fitXY"-->
+<!--                    android:background="@null"-->
+<!--                    android:contentDescription="@string/add_point" />-->
+
+                <ImageButton
+                    android:id="@+id/btn_finish"
+                    android:layout_width="@dimen/default_icon_size"
+                    android:layout_height="@dimen/default_icon_size"
+                    android:layout_margin="@dimen/default_icon_margin"
+                    android:scaleType="fitXY"
+                    android:background="@null"
+                    android:src="@drawable/next"
+                    android:contentDescription="@string/road" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <RadioGroup
+            android:id="@+id/plan_mode_rb_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_plan_drive"
+                style="@style/rb_style"
+                android:text="@string/rb_text_drive"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/rb_plan_bus"
+                style="@style/rb_style"
+                android:text="@string/rb_text_bus" />
+        </RadioGroup>
+    </LinearLayout>
+
+    <com.liangnie.xmap.views.LoadMoreListView
+        android:layout_marginTop="10dp"
+        android:id="@+id/search_poi_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/lrt_corner_shape"/>
+</LinearLayout>

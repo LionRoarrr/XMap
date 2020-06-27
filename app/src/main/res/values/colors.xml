@@ -9,4 +9,6 @@
     <color name="white">#FFFFFF</color>
     <color name="primary">#409EFF</color>
     <color name="info">#CDCDCD</color>
+    <color name="simple_info">#EEEEEE</color>
+    <color name="transparent_white">#CCFFFFFF</color>
 </resources>

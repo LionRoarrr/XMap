@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
+
+    <ImageButton
+        android:id="@+id/btn_remove_route"
+        android:layout_width="@dimen/default_icon_size"
+        android:layout_height="@dimen/default_icon_size"
+        android:scaleType="fitXY"
+        android:background="@null"
+        android:src="@drawable/close" />
+
+    <EditText
+        android:id="@+id/input_route"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:textSize="16sp"
+        android:hint="@string/input_route"
+        android:lines="1"
+        android:inputType="text"
+        android:imeActionLabel="@string/search"
+        android:textCursorDrawable="@drawable/default_cursor"/>
+</LinearLayout>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="elevation_default">10dp</dimen>
+    <dimen name="search_height">30dp</dimen>
+    <dimen name="expand_btn_height">20dp</dimen>
+    <dimen name="component_margin">10dp</dimen>
+    <dimen name="search_icon_size">25dp</dimen>
+    <dimen name="default_icon_size">30dp</dimen>
+    <dimen name="default_text_size">18sp</dimen>
+    <dimen name="default_radius">10dp</dimen>
+    <dimen name="default_icon_margin">5dp</dimen>
+    <dimen name="default_icon_padding">5dp</dimen>
+</resources>
