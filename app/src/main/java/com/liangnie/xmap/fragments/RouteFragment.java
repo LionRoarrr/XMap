@@ -30,7 +30,6 @@ import com.amap.api.services.poisearch.PoiSearch;
 import com.liangnie.xmap.R;
 import com.liangnie.xmap.activities.MainMapActivity;
 import com.liangnie.xmap.adapters.PoiItemsAdapter;
-import com.liangnie.xmap.bean.MyPoiItem;
 import com.liangnie.xmap.listeners.OnLoadMoreListener;
 import com.liangnie.xmap.views.LoadMoreListView;
 
@@ -181,7 +180,6 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
     public void onPoiSearched(PoiResult poiResult, int i) {
         if (i == 1000) {
             if (poiResult.getPois().size() > 0) {
-                MyPoiItem myPoiItem;
                 for (PoiItem item: poiResult.getPois()) {
                     mPoiItemsAdapter.addItem(item);
                 }
