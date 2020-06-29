@@ -26,11 +26,11 @@ import java.util.List;
 /**
  * 导航路线图层类。
  */
-public class DrivingRouteOverlay extends RouteOverlay{
+public class DrivingRouteOverlay extends RouteOverlay {
 
     private DrivePath drivePath;
     private List<LatLonPoint> throughPointList;
-    private List<Marker> throughPointMarkerList = new ArrayList<Marker>();
+    private List<Marker> throughPointMarkerList = new ArrayList<>();
     private boolean throughPointMarkerVisible = true;
     private List<TMC> tmcs;
     private PolylineOptions mPolylineOptions;
@@ -145,7 +145,6 @@ public class DrivingRouteOverlay extends RouteOverlay{
 
     private void showcolorPolyline() {
         addPolyLine(mPolylineOptionscolor);
-
     }
 
     /**

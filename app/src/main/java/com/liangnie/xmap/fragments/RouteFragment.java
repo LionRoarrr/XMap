@@ -1,13 +1,16 @@
 package com.liangnie.xmap.fragments;
 
+import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
@@ -24,6 +27,7 @@ import com.amap.api.services.route.RouteSearch;
 import com.amap.api.services.route.WalkRouteResult;
 import com.liangnie.xmap.R;
 import com.liangnie.xmap.activities.MainMapActivity;
+import com.liangnie.xmap.utils.ToastUtil;
 
 public class RouteFragment extends Fragment implements View.OnClickListener,
         RadioGroup.OnCheckedChangeListener,
@@ -38,10 +42,13 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
     private RouteSearch mRouteSearch;
     private PoiItem mStartPoi;  // 起点
     private PoiItem mEndPoi;    // 终点
+    private DriveRouteResult mDriveRouteResult;
+
     private Fragment mCurrentFragment;  // 当前显示的Fragment
     private RouteSearchResultFragment mRouteResultFragment;
     private DriveRouteFragment mDriveRouteFragment;
 
+    private LinearLayout mSearchBar;
     private EditText mInputOrigin;  // 起点输入
     private EditText mInputDestination;  // 终点输入
 
@@ -61,6 +68,7 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_route, container, false);
 
+        mSearchBar = view.findViewById(R.id.search_bar);
         mInputOrigin = view.findViewById(R.id.input_origin);
         mInputDestination = view.findViewById(R.id.input_destination);
 
@@ -80,37 +88,34 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        setStartPoi(null);
+        setEndPoi(null);
+        unregisterListener();
+
+        super.onViewStateRestored(savedInstanceState);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
 
-        switchFragment(mRouteResultFragment);
-        mInputOrigin.addTextChangedListener(mRouteResultFragment);
-        mInputDestination.addTextChangedListener(mRouteResultFragment);
+        registerListener();
 
         MainMapActivity activity = (MainMapActivity) getActivity();
         if (null != activity) {
             Location myLocation = activity.getMyLocation();
             LatLonPoint point = new LatLonPoint(myLocation.getLatitude(), myLocation.getLongitude());
-            setStartPoi(new PoiItem("", point, "我的位置", ""));
+            if (mStartPoi == null) {
+                setStartPoi(new PoiItem("", point, "我的位置", ""));
+            }
         }
-
-        autoRequestFocus();
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        setStartPoi(null);
-        setEndPoi(null);
-        mInputOrigin.removeTextChangedListener(mRouteResultFragment);
-        mInputDestination.removeTextChangedListener(mRouteResultFragment);
-        super.onViewStateRestored(savedInstanceState);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mInputOrigin.removeTextChangedListener(mRouteResultFragment);
-        mInputDestination.removeTextChangedListener(mRouteResultFragment);
+        unregisterListener();
     }
 
     private void initFragment() {
@@ -120,15 +125,27 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
         mDriveRouteFragment = new DriveRouteFragment();
     }
 
+    private void registerListener() {
+        mInputOrigin.addTextChangedListener(mRouteResultFragment);
+        mInputDestination.addTextChangedListener(mRouteResultFragment);
+    }
+
+    private void unregisterListener() {
+        mInputOrigin.removeTextChangedListener(mRouteResultFragment);
+        mInputDestination.removeTextChangedListener(mRouteResultFragment);
+    }
+
     private void switchFragment(Fragment target) {
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
-        if (target.isAdded()) {
-            transaction.hide(mCurrentFragment).show(target).commit();
-        } else if (null != mCurrentFragment) {
-            transaction.hide(mCurrentFragment).add(R.id.fragment_container, target).commit();
+        if (!target.isAdded()) {
+            if (mCurrentFragment != null) {
+                transaction.hide(mCurrentFragment).add(R.id.fragment_container, target).commit();
+            } else {
+                transaction.add(R.id.fragment_container, target).commit();
+            }
         } else {
-            transaction.add(R.id.fragment_container, target).commit();
+            transaction.hide(mCurrentFragment).show(target).commit();
         }
 
         mCurrentFragment = target;
@@ -169,24 +186,19 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
             mInputOrigin.requestFocus();
             moveInputCursorToEnd();
         }
-    }
 
-    /*
-    * 输入框自动获取焦点
-    * */
-    private void autoRequestFocus() {
-        if (mStartPoi == null) {
-            mInputOrigin.requestFocus();
-            moveInputCursorToEnd();
-        } else if (mEndPoi == null) {
-            mInputDestination.requestFocus();
-            moveInputCursorToEnd();
-        }
+        tryPlanRoute();
     }
 
     private void removeInputFocus() {
         mInputOrigin.clearFocus();
         mInputDestination.clearFocus();
+
+        InputMethodManager imm = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getActivity().getWindow().getDecorView().getWindowToken(), 0);
+        }
     }
 
     private void setStartPoi(PoiItem item) {
@@ -232,20 +244,30 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
         RouteSearch.DriveRouteQuery query = new RouteSearch.DriveRouteQuery(fromAndTo, RouteSearch.
                 DRIVING_MULTI_STRATEGY_FASTEST_SHORTEST_AVOID_CONGESTION, null, null, "");
         mRouteSearch.calculateDriveRouteAsyn(query);
-
-        switchFragment(mDriveRouteFragment);
     }
 
     private void tryPlanRoute() {
         if (mStartPoi != null && mEndPoi != null) {
-            switch (mPlanMode) {
-                case MODE_DRIVE:
-                    startPlanDrive();
-                    break;
-                case MODE_BUS:
-                    break;
+            if (!mStartPoi.getPoiId().equals(mEndPoi.getPoiId())) {
+                switch (mPlanMode) {
+                    case MODE_DRIVE:
+                        startPlanDrive();
+                        break;
+                    case MODE_BUS:
+                        break;
+                }
+            } else {
+                ToastUtil.showToast(getActivity(), "起点和终点不能相同");
             }
         }
+    }
+
+    public void showSearchBar() {
+        mSearchBar.setVisibility(View.VISIBLE);
+    }
+
+    public void hideSearchBar() {
+        mSearchBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -287,7 +309,6 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
             setEndPoi(mRouteResultFragment.getPoiItem(position));
         }
         removeInputFocus();
-        autoRequestFocus();
         tryPlanRoute();
     }
 
@@ -301,10 +322,19 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
         if (i == 1000) {
             MainMapActivity activity = (MainMapActivity) getActivity();
             if (driveRouteResult != null && driveRouteResult.getPaths() != null && activity != null) {
-                if (driveRouteResult.getPaths().size() > 0) {
-                    LatLonPoint startPos = driveRouteResult.getStartPos();
-                    LatLonPoint endPos = driveRouteResult.getTargetPos();
-                    activity.showDrivingRoute(driveRouteResult.getPaths().get(0), startPos, endPos);
+                if (!driveRouteResult.getPaths().isEmpty()) {
+                    mDriveRouteResult = driveRouteResult;
+                    LatLonPoint startPos = mDriveRouteResult.getStartPos();
+                    LatLonPoint endPos = mDriveRouteResult.getTargetPos();
+                    // 简单导航，只取一条路径
+                    activity.showDrivingRoute(mDriveRouteResult.getPaths().get(0), startPos, endPos);
+
+                    Bundle data = new Bundle();
+                    data.putParcelable("DriveRouteResult", mDriveRouteResult);
+                    data.putParcelable("StartPoi", mStartPoi);
+                    data.putParcelable("EndPoi", mEndPoi);
+                    mDriveRouteFragment.setArguments(data);
+                    switchFragment(mDriveRouteFragment);
                 }
             }
         }
@@ -325,6 +355,14 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
         // 输入框获得焦点
         if (hasFocus) {
             switchFragment(mRouteResultFragment);
+        } else {
+            if (mStartPoi != null) {
+                setInputOriginText(mStartPoi.getTitle());
+            }
+            if (mEndPoi != null) {
+                setInputDestText(mEndPoi.getTitle());
+            }
+
         }
     }
 }

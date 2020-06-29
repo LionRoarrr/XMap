@@ -20,14 +20,13 @@ import com.amap.api.services.poisearch.PoiSearch;
 import com.liangnie.xmap.R;
 import com.liangnie.xmap.activities.MainMapActivity;
 import com.liangnie.xmap.adapters.PoiItemsAdapter;
-import com.liangnie.xmap.listeners.OnLoadMoreListener;
 import com.liangnie.xmap.utils.StringUtil;
 import com.liangnie.xmap.utils.ToastUtil;
 import com.liangnie.xmap.views.LoadMoreListView;
 
 public class RouteSearchResultFragment extends Fragment implements PoiSearch.OnPoiSearchListener,
         TextWatcher,
-        OnLoadMoreListener {
+        LoadMoreListView.OnLoadMoreListener {
     private static final int SEARCH_PAGE_SIZE = 10;
 
     private LoadMoreListView mPoiItemListView;   // POI搜寻结果列表
@@ -60,6 +59,13 @@ public class RouteSearchResultFragment extends Fragment implements PoiSearch.OnP
         }
 
         return view;
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        mPoiItemsAdapter.clear();
+
+        super.onViewStateRestored(savedInstanceState);
     }
 
     private Location getMyLocation() {
@@ -105,11 +111,13 @@ public class RouteSearchResultFragment extends Fragment implements PoiSearch.OnP
     public void onPoiSearched(PoiResult poiResult, int i) {
         if (i == 1000) {
             if (!poiResult.getPois().isEmpty()) {
-                for (PoiItem item: poiResult.getPois()) {
-                    mPoiItemsAdapter.addItem(item);
+                if (!StringUtil.isEmptyOrNull(mKeyWord)) {
+                    for (PoiItem item: poiResult.getPois()) {
+                        mPoiItemsAdapter.addItem(item);
+                    }
+                    mPoiItemsAdapter.notifyDataSetChanged();
                 }
-                mPoiItemsAdapter.notifyDataSetChanged();
-            } else {
+            } else if (mCurrentPageNum > 1) {
                 ToastUtil.showToast(getActivity(), "没有更多了~");
             }
             mPoiItemListView.loadMoreCompleted();
@@ -135,11 +143,11 @@ public class RouteSearchResultFragment extends Fragment implements PoiSearch.OnP
 
     @Override
     public void afterTextChanged(Editable s) {
-        if (!StringUtil.isEmptyOrNull(s.toString())) {
-            mKeyWord = s.toString();
-            resetPageNum();
-            mPoiItemsAdapter.clear();
-            mPoiItemsAdapter.notifyDataSetChanged();
+        mPoiItemsAdapter.clear();
+        mPoiItemsAdapter.notifyDataSetChanged();
+        mKeyWord = s.toString();
+        resetPageNum();
+        if (!StringUtil.isEmptyOrNull(mKeyWord)) {
             searchPoi(mKeyWord, mCurrentPageNum);
         }
     }

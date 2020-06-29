@@ -2,14 +2,12 @@ package com.liangnie.xmap.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
 import com.liangnie.xmap.R;
-import com.liangnie.xmap.listeners.OnLoadMoreListener;
 
 public class LoadMoreListView extends ListView implements AbsListView.OnScrollListener {
     private int mTotalItemCount;    // 列表项数量
@@ -69,5 +67,9 @@ public class LoadMoreListView extends ListView implements AbsListView.OnScrollLi
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         mTotalItemCount = totalItemCount;
+    }
+
+    public interface OnLoadMoreListener {
+        void onLoadMore();
     }
 }

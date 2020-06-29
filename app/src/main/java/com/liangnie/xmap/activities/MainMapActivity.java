@@ -3,7 +3,6 @@ package com.liangnie.xmap.activities;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,12 +23,10 @@ import com.amap.api.services.route.DrivePath;
 import com.liangnie.xmap.R;
 import com.liangnie.xmap.fragments.MainFragment;
 import com.liangnie.xmap.fragments.RouteFragment;
-import com.liangnie.xmap.listeners.OnPageNaviCheckedListener;
 import com.liangnie.xmap.overlays.DrivingRouteOverlay;
 
 public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocationChangeListener
-        , AMapGestureListener
-        , OnPageNaviCheckedListener {
+        , AMapGestureListener {
 
     public static final int TAG_MAIN_FRAGMENT = 1;
     public static final int TAG_ROUTE_FRAGMENT = 2;
@@ -88,7 +85,7 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
 
     private void switchFragment(Fragment target) {
         mMap.clear();
-        changeMyLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE);    // 自动定位到我的位置
+        resetMyLocationMap();    // 自动定位到我的位置
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
 //        if (target.isAdded()) {
@@ -100,7 +97,7 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
 //        }
 //        mCurrentFragment = target;
 
-        // 有Fragment重新创建视图的需求，故使用以下Fragment切换逻辑
+        // 有Fragment重新创建视图的需求，使用以下Fragment切换逻辑
         if (!target.equals(mCurrentFragment)) {
             transaction.replace(R.id.fragment_container, target);
             transaction.addToBackStack(null);
@@ -216,11 +213,6 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
     }
 
     @Override
-    public void onChecked(int id) {
-        Log.i("TAG", "onChecked: " + id);
-    }
-
-    @Override
     public void onBackPressed() {
         if (mCurrentFragment.equals(mRouteFragment)) {
             switchFragment(mMainFragment);
@@ -252,12 +244,13 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
     * 地图重置到我的定位
     * */
     public void resetMyLocationMap() {
-        mMap.setMyLocationStyle(mMyLocationStyle); // 设置定位点样式
-        mMap.setMyLocationEnabled(true);    // 显示定位点
+        changeMyLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM)); // 相机视角缩放
     }
 
     public void showDrivingRoute(DrivePath path, LatLonPoint startPos, LatLonPoint endPos) {
+        changeMyLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE_NO_CENTER);
+        mMap.clear();
         DrivingRouteOverlay overlay = new DrivingRouteOverlay(getApplicationContext(),
                 mMap, path, startPos, endPos, null);
         overlay.setNodeIconVisibility(false);   // 不显示节点Marker

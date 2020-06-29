@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RouteOverlay {
-    protected List<Marker> stationMarkers = new ArrayList<Marker>();
-    protected List<Polyline> allPolyLines = new ArrayList<Polyline>();
+    protected List<Marker> stationMarkers = new ArrayList<>();
+    protected List<Polyline> allPolyLines = new ArrayList<>();
     protected Marker startMarker;
     protected Marker endMarker;
     protected LatLng startPoint;
@@ -37,7 +37,6 @@ public class RouteOverlay {
 
     /**
      * 去掉BusRouteOverlay上所有的Marker。
-     * @since V2.1.0
      */
     public void removeFromMap() {
         if (startMarker != null) {
@@ -81,7 +80,6 @@ public class RouteOverlay {
     /**
      * 给起点Marker设置图标，并返回更换图标的图片。如不用默认图片，需要重写此方法。
      * @return 更换的Marker图片。
-     * @since V2.1.0
      */
     protected BitmapDescriptor getStartBitmapDescriptor() {
         return BitmapDescriptorFactory.fromResource(R.drawable.amap_start);
@@ -89,26 +87,9 @@ public class RouteOverlay {
     /**
      * 给终点Marker设置图标，并返回更换图标的图片。如不用默认图片，需要重写此方法。
      * @return 更换的Marker图片。
-     * @since V2.1.0
      */
     protected BitmapDescriptor getEndBitmapDescriptor() {
         return BitmapDescriptorFactory.fromResource(R.drawable.amap_end);
-    }
-    /**
-     * 给公交Marker设置图标，并返回更换图标的图片。如不用默认图片，需要重写此方法。
-     * @return 更换的Marker图片。
-     * @since V2.1.0
-     */
-    protected BitmapDescriptor getBusBitmapDescriptor() {
-        return BitmapDescriptorFactory.fromResource(R.drawable.amap_bus);
-    }
-    /**
-     * 给步行Marker设置图标，并返回更换图标的图片。如不用默认图片，需要重写此方法。
-     * @return 更换的Marker图片。
-     * @since V2.1.0
-     */
-    protected BitmapDescriptor getWalkBitmapDescriptor() {
-        return BitmapDescriptorFactory.fromResource(R.drawable.amap_man);
     }
 
     protected BitmapDescriptor getDriveBitmapDescriptor() {
@@ -128,7 +109,6 @@ public class RouteOverlay {
     }
     /**
      * 移动镜头到当前的视角。
-     * @since V2.1.0
      */
     public void zoomToSpan() {
         if (startPoint != null) {
@@ -137,7 +117,7 @@ public class RouteOverlay {
             try {
                 LatLngBounds bounds = getLatLngBounds();
                 mAMap.animateCamera(CameraUpdateFactory
-                        .newLatLngBounds(bounds, 50));
+                        .newLatLngBounds(bounds, 400));
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -158,7 +138,6 @@ public class RouteOverlay {
     /**
      * 路段节点图标控制显示接口。
      * @param visible true为显示节点图标，false为不显示。
-     * @since V2.3.1
      */
     public void setNodeIconVisibility(boolean visible) {
         try {
@@ -198,21 +177,8 @@ public class RouteOverlay {
         return 18f;
     }
 
-    protected int getWalkColor() {
-        return Color.parseColor("#6db74d");
-    }
-
-    /**
-     * 自定义路线颜色。
-     * return 自定义路线颜色。
-     * @since V2.2.1
-     */
-    protected int getBusColor() {
-        return Color.parseColor("#537edc");
-    }
-
     protected int getDriveColor() {
-        return Color.parseColor("#537edc");
+        return Color.parseColor("#409EFF");
     }
 
     // protected int getShowRouteZoom() {
