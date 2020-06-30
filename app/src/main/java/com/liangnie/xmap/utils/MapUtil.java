@@ -2,11 +2,19 @@ package com.liangnie.xmap.utils;
 
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.services.core.LatLonPoint;
+import com.amap.api.services.route.BusPath;
+import com.amap.api.services.route.BusStep;
+import com.amap.api.services.route.RouteBusLineItem;
+import com.amap.api.services.route.RouteRailwayItem;
 import com.liangnie.xmap.R;
 
-import java.util.Locale;
+import java.text.DecimalFormat;
+import java.util.List;
 
 public class MapUtil {
+    /*
+    * LatLonPoint转换为LatLng
+    * */
     public static LatLng convertToLatLng(LatLonPoint point) {
         return new LatLng(point.getLatitude(), point.getLongitude());
     }
@@ -14,50 +22,47 @@ public class MapUtil {
     /*
     * 转换时间为天时分秒字符串
     * */
-    public static String convertToString(long duration) {
-        long temp = duration;
-        StringBuilder timeStr = new StringBuilder();
-
-        if (duration >= (60 * 60 * 24)) {
-            timeStr.append(duration / (60 * 60 * 24));
-            timeStr.append("天");
+    public static String getFriendlyTime(int second) {
+        if (second > 3600) {
+            int hour = second / 3600;
+            int minute = (second % 3600) / 60;
+            return hour + "小时" + minute + "分钟";
         }
-
-        duration %= (60 * 60 * 24);
-        if (duration >= (60 * 60)) {
-            timeStr.append(duration / (60 * 60));
-            timeStr.append("小时");
+        if (second >= 60) {
+            int miniate = second / 60;
+            return miniate + "分钟";
         }
-
-        duration %= (60 * 60);
-        if (duration >= 60) {
-            timeStr.append(duration / 60);
-            timeStr.append("分钟");
-        }
-
-        duration %= 60;
-        if (duration > 0 && duration == temp) {
-            timeStr.append(duration);
-            timeStr.append("秒");
-        }
-
-        return timeStr.toString();
+        return second + "秒";
     }
 
     /*
-    * 转换距离为米和公里字符串
+    * 转换距离为友好距离
     * */
-    public static String convertToString(float distance) {
-        StringBuilder distanceStr = new StringBuilder();
-
-        if (distance > 1000.0) {
-            float compDistance = distance / 1000f;
-            distanceStr.append(String.format(Locale.CHINA,"%.2f公里", compDistance));
-        } else if (distance >= 0) {
-            distanceStr.append(String.format(Locale.CHINA,"%.0f米", distance));
+    public static String getFriendlyLength(int lenMeter) {
+        if (lenMeter > 10000) // 10 km
+        {
+            int dis = lenMeter / 1000;
+            return dis + "公里";
         }
 
-        return distanceStr.toString();
+        if (lenMeter > 1000) {
+            float dis = (float) lenMeter / 1000;
+            DecimalFormat fnum = new DecimalFormat("##0.0");
+            String dstr = fnum.format(dis);
+            return dstr + "公里";
+        }
+
+        if (lenMeter > 100) {
+            int dis = lenMeter / 50 * 50;
+            return dis + "米";
+        }
+
+        int dis = lenMeter / 10 * 10;
+        if (dis == 0) {
+            dis = 10;
+        }
+
+        return dis + "米";
     }
 
     /*
@@ -92,5 +97,67 @@ public class MapUtil {
             return R.drawable.dir4;
         }
         return R.drawable.dir3;
+    }
+
+    /*
+    * 格式化BusPath，输出格式换乘信息
+    * */
+    public static String getBusPathTitle(BusPath busPath) {
+        if (busPath == null) {
+            return "";
+        }
+        List<BusStep> busSteps = busPath.getSteps();
+        if (busSteps == null) {
+            return "";
+        }
+        StringBuffer sb = new StringBuffer();
+        for (BusStep busStep : busSteps) {
+            StringBuffer title = new StringBuffer();
+            if (!busStep.getBusLines().isEmpty()) {
+                for (RouteBusLineItem busline : busStep.getBusLines()) {
+                    if (busline == null) {
+                        continue;
+                    }
+
+                    String buslineName = getSimpleBusLineName(busline.getBusLineName());
+                    title.append(buslineName);
+                    title.append(" / ");
+                }
+
+                sb.append(title.substring(0, title.length() - 3));
+                sb.append(" > ");
+            }
+            if (busStep.getRailway() != null) {
+                RouteRailwayItem railway = busStep.getRailway();
+                sb.append(railway.getTrip()).append("(").append(railway.getDeparturestop().getName()).append(" - ").append(railway.getArrivalstop().getName()).append(")");
+                sb.append(" > ");
+            }
+        }
+        return sb.substring(0, sb.length() - 3);
+    }
+
+    /*
+    * 格式化BusPath，输出该Path下的总距离，时间和步行
+    * */
+    public static String getBusPathDes(BusPath busPath) {
+        if (busPath == null) {
+            return "";
+        }
+
+        String cost = busPath.getCost() + "元";
+        String startStation = busPath.getSteps().get(0)
+                .getBusLines().get(0)
+                .getDepartureBusStation().getBusStationName() + "上车";
+        String time = getFriendlyTime((int) busPath.getDuration());
+        String walkDist = getFriendlyLength((int) busPath.getWalkDistance());
+
+        return time + "\n" + cost + "·步行" + walkDist + "·" + startStation;
+    }
+
+    public static String getSimpleBusLineName(String busLineName) {
+        if (busLineName == null) {
+            return "";
+        }
+        return busLineName.replaceAll("\\(.*?--.*?\\)", "");
     }
 }

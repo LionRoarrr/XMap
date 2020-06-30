@@ -32,12 +32,15 @@ public class DriveRouteFragment extends Fragment implements View.OnClickListener
     private DriveRouteResult mRouteResult;
     private PoiItem mStartPoi;
     private PoiItem mEndPoi;
-    private DrivingDetailListAdapter mDetailListAdapter;
+    private DrivingDetailListAdapter mDrivingDetailListAdapter;
 
     private TextView mPlanTime;
     private TextView mPlanDistance;
-    private TextView mTaxiCost;;
+    private TextView mTaxiCost;
     private ListView mDetailList;
+    LinearLayout mViewDetailButton;
+    LinearLayout mFoldDetailButton;
+    LinearLayout mDetailBar;
 
     @Nullable
     @Override
@@ -49,10 +52,13 @@ public class DriveRouteFragment extends Fragment implements View.OnClickListener
         mTaxiCost = view.findViewById(R.id.taxi_cost);
         mDetailList = view.findViewById(R.id.detail_list);
         LinearLayout startNaviButton = view.findViewById(R.id.start_navi);
-        LinearLayout viewDetailButton = view.findViewById(R.id.view_detail);
+        mViewDetailButton = view.findViewById(R.id.view_detail);
+        mFoldDetailButton = view.findViewById(R.id.fold_detail);
+        mDetailBar = view.findViewById(R.id.route_detail_bar);
 
         startNaviButton.setOnClickListener(this);
-        viewDetailButton.setOnClickListener(this);
+        mViewDetailButton.setOnClickListener(this);
+        mFoldDetailButton.setOnClickListener(this);
 
         return view;
     }
@@ -72,11 +78,14 @@ public class DriveRouteFragment extends Fragment implements View.OnClickListener
             mEndPoi = data.getParcelable("EndPoi");
 
             DrivePath path = mRouteResult.getPaths().get(0);
-            mPlanTime.setText(MapUtil.convertToString(path.getDuration()));
-            mPlanDistance.setText(MapUtil.convertToString(path.getDistance()));
+            mPlanTime.setText(MapUtil.getFriendlyTime((int) path.getDuration()));
+            mPlanDistance.setText(MapUtil.getFriendlyLength((int) path.getDistance()));
 
             String costStr = "打车约" + mRouteResult.getTaxiCost() + "元";
             mTaxiCost.setText(costStr);
+
+            mDrivingDetailListAdapter = new DrivingDetailListAdapter(getActivity(), mRouteResult.getPaths().get(0).getSteps());
+            mDetailList.setAdapter(mDrivingDetailListAdapter);
         }
     }
 
@@ -88,23 +97,27 @@ public class DriveRouteFragment extends Fragment implements View.OnClickListener
     }
 
     private void viewRouteDetail() {
-        mDetailListAdapter = new DrivingDetailListAdapter(getActivity(), mRouteResult.getPaths().get(0).getSteps());
-        mDetailList.setAdapter(mDetailListAdapter);
         hideSearchBar();
         showDetailList();
     }
 
-    private void closeRouteDetail() {
+    private void foldRouteDetail() {
         hideDetailList();
         showSearchBar();
     }
 
     private void showDetailList() {
-        mDetailList.setVisibility(View.VISIBLE);
+        mDetailList.setVisibility(View.VISIBLE);    // 显示路径详情
+        mViewDetailButton.setVisibility(View.GONE); // 隐藏显示详情按钮
+        mFoldDetailButton.setVisibility(View.VISIBLE);  // 显示显示详情按钮
+        mDetailBar.setBackgroundResource(R.color.white);    // RouteDetailBar上边圆角变直角
     }
 
     private void hideDetailList() {
         mDetailList.setVisibility(View.GONE);
+        mViewDetailButton.setVisibility(View.VISIBLE);
+        mFoldDetailButton.setVisibility(View.GONE);
+        mDetailBar.setBackgroundResource(R.drawable.lrt_corner_shape);
     }
 
     private void showSearchBar() {
@@ -136,6 +149,9 @@ public class DriveRouteFragment extends Fragment implements View.OnClickListener
                 break;
             case R.id.view_detail:
                 viewRouteDetail();
+                break;
+            case R.id.fold_detail:
+                foldRouteDetail();
                 break;
         }
     }

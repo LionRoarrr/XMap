@@ -78,7 +78,7 @@ public class PoiItemsAdapter extends BaseAdapter {
 
         if (null == convertView) {
             viewHolder = new ViewHolder();
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.my_poi_item, parent, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_my_poi, parent, false);
             viewHolder.title = convertView.findViewById(R.id.title);
             viewHolder.snippet = convertView.findViewById(R.id.snippet);
             viewHolder.adName = convertView.findViewById(R.id.ad_name);

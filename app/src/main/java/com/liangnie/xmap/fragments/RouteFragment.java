@@ -39,14 +39,15 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
     private static final int MODE_BUS = 101;
 
     private int mPlanMode;
+    private String mCurrentCityCode;
     private RouteSearch mRouteSearch;
     private PoiItem mStartPoi;  // 起点
     private PoiItem mEndPoi;    // 终点
-    private DriveRouteResult mDriveRouteResult;
 
     private Fragment mCurrentFragment;  // 当前显示的Fragment
     private RouteSearchResultFragment mRouteResultFragment;
     private DriveRouteFragment mDriveRouteFragment;
+    private BusRouteFragment mBusRouteFragment;
 
     private LinearLayout mSearchBar;
     private EditText mInputOrigin;  // 起点输入
@@ -101,15 +102,7 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
         super.onStart();
 
         registerListener();
-
-        MainMapActivity activity = (MainMapActivity) getActivity();
-        if (null != activity) {
-            Location myLocation = activity.getMyLocation();
-            LatLonPoint point = new LatLonPoint(myLocation.getLatitude(), myLocation.getLongitude());
-            if (mStartPoi == null) {
-                setStartPoi(new PoiItem("", point, "我的位置", ""));
-            }
-        }
+        setData();
     }
 
     @Override
@@ -118,11 +111,25 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
         unregisterListener();
     }
 
+
+    private void setData() {
+        MainMapActivity activity = (MainMapActivity) getActivity();
+        if (null != activity) {
+            Location myLocation = activity.getMyLocation();
+            mCurrentCityCode = myLocation.getExtras().getString("citycode");
+            LatLonPoint point = new LatLonPoint(myLocation.getLatitude(), myLocation.getLongitude());
+            if (mStartPoi == null) {
+                setStartPoi(new PoiItem("", point, "我的位置", ""));
+            }
+        }
+    }
+
     private void initFragment() {
         mRouteResultFragment = new RouteSearchResultFragment();
         mRouteResultFragment.setOnItemClickListener(this);
 
         mDriveRouteFragment = new DriveRouteFragment();
+        mBusRouteFragment = new BusRouteFragment();
     }
 
     private void registerListener() {
@@ -239,22 +246,21 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
         }
     }
 
-    private void startPlanDrive() {
-        RouteSearch.FromAndTo fromAndTo = new RouteSearch.FromAndTo(mStartPoi.getLatLonPoint(), mEndPoi.getLatLonPoint());
-        RouteSearch.DriveRouteQuery query = new RouteSearch.DriveRouteQuery(fromAndTo, RouteSearch.
-                DRIVING_MULTI_STRATEGY_FASTEST_SHORTEST_AVOID_CONGESTION, null, null, "");
-        mRouteSearch.calculateDriveRouteAsyn(query);
-    }
-
     private void tryPlanRoute() {
         if (mStartPoi != null && mEndPoi != null) {
             if (!mStartPoi.getPoiId().equals(mEndPoi.getPoiId())) {
-                switch (mPlanMode) {
-                    case MODE_DRIVE:
-                        startPlanDrive();
-                        break;
-                    case MODE_BUS:
-                        break;
+                RouteSearch.FromAndTo fromAndTo = new RouteSearch.FromAndTo(mStartPoi.getLatLonPoint(), mEndPoi.getLatLonPoint());
+
+                if (mPlanMode == MODE_DRIVE) {
+                    RouteSearch.DriveRouteQuery query = new RouteSearch.DriveRouteQuery(fromAndTo, RouteSearch.
+                            DRIVING_MULTI_STRATEGY_FASTEST_SHORTEST_AVOID_CONGESTION, null, null, "");
+                    mRouteSearch.calculateDriveRouteAsyn(query);
+                } else if (mPlanMode == MODE_BUS) {
+                    // 第一个参数表示路径规划的起点和终点，第二个参数表示公交查询模式，第三个参数表示公交查询城市区号，第四个参数表示是否计算夜班车，0表示不计算
+                    RouteSearch.BusRouteQuery query = new RouteSearch.BusRouteQuery(fromAndTo,
+                            RouteSearch.BUS_DEFAULT,
+                            mCurrentCityCode, 0);
+                    mRouteSearch.calculateBusRouteAsyn(query);// 异步路径规划公交模式查询
                 }
             } else {
                 ToastUtil.showToast(getActivity(), "起点和终点不能相同");
@@ -276,9 +282,6 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
             case R.id.btn_back:
                 backMainFragment();
                 break;
-//            case R.id.btn_add_route:
-//                addRoute();
-//                break;
             case R.id.btn_swap_route:
                 routeReverse();
                 break;
@@ -299,6 +302,7 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
                 mPlanMode = MODE_BUS;
                 break;
         }
+        tryPlanRoute();
     }
 
     @Override
@@ -314,7 +318,20 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onBusRouteSearched(BusRouteResult busRouteResult, int i) {
-
+        if (i == 1000) {
+            if (busRouteResult != null && busRouteResult.getPaths() != null) {
+                if (!busRouteResult.getPaths().isEmpty()) {
+                    Bundle data = new Bundle();
+                    data.putParcelable("BusRouteResult", busRouteResult);
+                    mBusRouteFragment.setArguments(data);
+                    switchFragment(mBusRouteFragment);
+                } else {
+                    ToastUtil.showToast(getActivity(), getString(R.string.no_bus_route_result));
+                }
+            } else {
+                ToastUtil.showToast(getActivity(), getString(R.string.no_bus_route_result));
+            }
+        }
     }
 
     @Override
@@ -323,19 +340,22 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
             MainMapActivity activity = (MainMapActivity) getActivity();
             if (driveRouteResult != null && driveRouteResult.getPaths() != null && activity != null) {
                 if (!driveRouteResult.getPaths().isEmpty()) {
-                    mDriveRouteResult = driveRouteResult;
-                    LatLonPoint startPos = mDriveRouteResult.getStartPos();
-                    LatLonPoint endPos = mDriveRouteResult.getTargetPos();
+                    LatLonPoint startPos = driveRouteResult.getStartPos();
+                    LatLonPoint endPos = driveRouteResult.getTargetPos();
                     // 简单导航，只取一条路径
-                    activity.showDrivingRoute(mDriveRouteResult.getPaths().get(0), startPos, endPos);
+                    activity.showDrivingRoute(driveRouteResult.getPaths().get(0), startPos, endPos);
 
                     Bundle data = new Bundle();
-                    data.putParcelable("DriveRouteResult", mDriveRouteResult);
+                    data.putParcelable("DriveRouteResult", driveRouteResult);
                     data.putParcelable("StartPoi", mStartPoi);
                     data.putParcelable("EndPoi", mEndPoi);
                     mDriveRouteFragment.setArguments(data);
                     switchFragment(mDriveRouteFragment);
+                } else {
+                    ToastUtil.showToast(getActivity(), getString(R.string.no_drive_route_result));
                 }
+            } else {
+                ToastUtil.showToast(getActivity(), getString(R.string.no_drive_route_result));
             }
         }
     }
@@ -357,12 +377,17 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
             switchFragment(mRouteResultFragment);
         } else {
             if (mStartPoi != null) {
-                setInputOriginText(mStartPoi.getTitle());
+                String str = mInputOrigin.getText().toString();
+                if (!mStartPoi.getTitle().equals(str)) {
+                    setStartPoi(null);
+                }
             }
             if (mEndPoi != null) {
-                setInputDestText(mEndPoi.getTitle());
+                String str = mInputDestination.getText().toString();
+                if (!mEndPoi.getTitle().equals(str)) {
+                    setEndPoi(null);
+                }
             }
-
         }
     }
 }

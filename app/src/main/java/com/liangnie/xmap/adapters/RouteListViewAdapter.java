@@ -46,7 +46,7 @@ public class RouteListViewAdapter extends BaseAdapter {
             viewHolder = new ViewHolder();
             viewHolder.watcher = new MyTextWatcher(position);
 
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.route_listview_item, parent, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_route_listview, parent, false);
             viewHolder.removeRouteButton = convertView.findViewById(R.id.btn_remove_route);
             viewHolder.inputRoute = convertView.findViewById(R.id.input_route);
 

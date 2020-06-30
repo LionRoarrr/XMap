@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.amap.api.services.route.DriveStep;
 import com.liangnie.xmap.R;
 import com.liangnie.xmap.utils.MapUtil;
@@ -20,11 +22,26 @@ public class DrivingDetailListAdapter extends BaseAdapter {
     private Context mContext;
     private List<DriveStep> mList = new ArrayList<>();
 
-    public DrivingDetailListAdapter(Context context ,List<DriveStep> list) {
+    public DrivingDetailListAdapter(Context context , List<DriveStep> list) {
         mContext = context;
         mList.add(new DriveStep()); // 起点
         mList.addAll(list);
         mList.add(new DriveStep()); // 终点
+    }
+
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        DriveStep item = mList.get(position);
+        if (position == 0) {
+            holder.actionIcon.setImageResource(R.drawable.dir_start);
+            holder.lineName.setText("出发");
+        } else if (position == mList.size() - 1) {
+            holder.actionIcon.setImageResource(R.drawable.dir_end);
+            holder.lineName.setText("到达目的地");
+        } else {
+            int actionId = MapUtil.getDriveActionID(item.getAction());
+            holder.actionIcon.setImageResource(actionId);
+            holder.lineName.setText(item.getInstruction());
+        }
     }
 
     @Override
@@ -34,7 +51,7 @@ public class DrivingDetailListAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return  mList.get(position);
+        return mList.get(position);
     }
 
     @Override
@@ -44,38 +61,28 @@ public class DrivingDetailListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder;
+        ViewHolder holder;
+
         if (convertView == null) {
-            viewHolder = new ViewHolder();
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.driving_detail_list_item, parent, false);
-            viewHolder.actionIcon = convertView.findViewById(R.id.action_icon); // 路段动作
-            viewHolder.upDivider = convertView.findViewById(R.id.up_divider);   // 上分隔
-            viewHolder.lineName = convertView.findViewById(R.id.driving_line_name); // 路段内容
-            convertView.setTag(viewHolder);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_driving_detail_list, parent, false);
+            holder = new ViewHolder(convertView);
+            convertView.setTag(holder);
         } else {
-            viewHolder = (ViewHolder) convertView.getTag();
+            holder = (ViewHolder) convertView.getTag();
         }
 
-        DriveStep item = mList.get(position);
-        if (position == 0) {
-            viewHolder.actionIcon.setImageResource(R.drawable.dir_start);
-            viewHolder.upDivider.setVisibility(View.GONE);
-            viewHolder.lineName.setText("出发");
-        } else if (position == mList.size() - 1) {
-            viewHolder.actionIcon.setImageResource(R.drawable.dir_end);
-            viewHolder.lineName.setText("到达目的地");
-        } else {
-            int actionId = MapUtil.getDriveActionID(item.getAction());
-            viewHolder.actionIcon.setImageResource(actionId);
-            viewHolder.lineName.setText(item.getInstruction());
-        }
+        onBindViewHolder(holder, position);
 
         return convertView;
     }
 
-    public static class ViewHolder {
-        public TextView lineName;
-        public ImageView upDivider;
-        public ImageView actionIcon;
+    static class ViewHolder {
+        TextView lineName;
+        ImageView actionIcon;
+
+        public ViewHolder(@NonNull View itemView) {
+            actionIcon = itemView.findViewById(R.id.action_icon); // 路段动作
+            lineName = itemView.findViewById(R.id.driving_line_name); // 路段内容
+        }
     }
 }
