@@ -20,9 +20,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.XMap">
         <activity
-            android:name=".activities.NavActivity"
-            android:theme="@style/Theme.AppCompat" />
-        <activity
             android:name="com.amap.api.navi.AmapRouteActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@android:style/Theme.NoTitleBar" />

@@ -62,10 +62,12 @@ public class RouteSearchResultFragment extends Fragment implements PoiSearch.OnP
     }
 
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        mPoiItemsAdapter.clear();
-
-        super.onViewStateRestored(savedInstanceState);
+    public void onHiddenChanged(boolean hidden) {
+        if (hidden) {
+            resetPageNum();
+            mPoiItemsAdapter.clear();
+            mPoiItemsAdapter.notifyDataSetChanged();
+        }
     }
 
     private Location getMyLocation() {

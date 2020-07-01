@@ -46,12 +46,14 @@ public class MainFragment extends Fragment implements RadioGroup.OnCheckedChange
     private void switchFragment(Fragment target) {
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
-        if (target.isAdded()) {
-            transaction.hide(mCurrentFragment).show(target).commit();
-        } else if (null != mCurrentFragment) {
-            transaction.hide(mCurrentFragment).add(R.id.fragment_container, target).commit();
+        if (!target.isAdded()) {
+            if (mCurrentFragment != null) {
+                transaction.hide(mCurrentFragment).add(R.id.fragment_container, target).commit();
+            } else {
+                transaction.add(R.id.fragment_container, target).commit();
+            }
         } else {
-            transaction.add(R.id.fragment_container, target).commit();
+            transaction.hide(mCurrentFragment).show(target).commit();
         }
 
         mCurrentFragment = target;

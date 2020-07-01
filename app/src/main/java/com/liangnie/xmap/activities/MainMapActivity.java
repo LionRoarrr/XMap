@@ -21,9 +21,11 @@ import com.amap.api.maps.model.MyLocationStyle;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.route.DrivePath;
 import com.liangnie.xmap.R;
+import com.liangnie.xmap.fragments.LoadingDialogFragment;
 import com.liangnie.xmap.fragments.MainFragment;
 import com.liangnie.xmap.fragments.RouteFragment;
 import com.liangnie.xmap.overlays.DrivingRouteOverlay;
+import com.liangnie.xmap.utils.ToastUtil;
 
 public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocationChangeListener
         , AMapGestureListener {
@@ -31,17 +33,19 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
     public static final int TAG_MAIN_FRAGMENT = 1;
     public static final int TAG_ROUTE_FRAGMENT = 2;
 
-    private static final int DEFAULT_ZOOM = 16;
+    private static final int DEFAULT_ZOOM = 16; // 地图默认缩放等级
 
+    private MapView mMapView;   // 地图组件
     private AMap mMap;  // 地图控制器
     private MyLocationStyle mMyLocationStyle;   // 定位样式
     private Location mMyLocation;
     private Boolean mIsMapRotateMode = false;   // 定位模式是否是地图跟随模式
+    private long mLastBackTime = 0;
+
     private Fragment mCurrentFragment;
     private MainFragment mMainFragment; // 主要Fragment
     private RouteFragment mRouteFragment; // 路线Fragment
-
-    private MapView mMapView;   // 地图组件
+    private LoadingDialogFragment mLoadingDialogFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,37 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
 
         initView(savedInstanceState);   // 初始化视图
         initFragment();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mMapView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mMapView.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mMapView.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onMyLocationChange(Location location) {
+        if (null != location) {
+            mMyLocation = location;
+        }
     }
 
     public void initView(Bundle savedInstanceState) {
@@ -84,61 +119,27 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
     }
 
     private void switchFragment(Fragment target) {
-        mMap.clear();
+        mMap.clear();   // 清理地图
         resetMyLocationMap();    // 自动定位到我的位置
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-//        if (target.isAdded()) {
-//            transaction.hide(mCurrentFragment).show(target).commit();
-//        } else if (null != mCurrentFragment) {
-//            transaction.hide(mCurrentFragment).add(R.id.fragment_container, target).commit();
-//        } else {
-//            transaction.add(R.id.fragment_container, target).commit();
-//        }
-//        mCurrentFragment = target;
-
-        // 有Fragment重新创建视图的需求，使用以下Fragment切换逻辑
-        if (!target.equals(mCurrentFragment)) {
-            transaction.replace(R.id.fragment_container, target);
-            transaction.addToBackStack(null);
-            transaction.commit();
+        if (!target.isAdded()) {
+            if (mCurrentFragment != null) {
+                transaction.hide(mCurrentFragment).add(R.id.fragment_container, target).commit();
+            } else {
+                transaction.add(R.id.fragment_container, target).commit();
+            }
+        } else {
+            transaction.hide(mCurrentFragment).show(target).commit();
         }
 
         mCurrentFragment = target;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mMapView.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mMapView.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mMapView.onDestroy();
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mMapView.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onMyLocationChange(Location location) {
-        if (null != location) {
-            mMyLocation = location;
-        }
-    }
-
-    private void toggleMyLocationType() {
+    /*
+    * 定位按钮点击时切换定位模式
+    * */
+    public void toggleMyLocationType() {
         LatLng position = mMap.getCameraPosition().target;
 
         // 坐标精度
@@ -166,9 +167,56 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
         }
     }
 
+    /*
+    * 修改地图定位模式
+    * */
     private void changeMyLocationType(int mode) {
         mMyLocationStyle.myLocationType(mode);
         mMap.setMyLocationStyle(mMyLocationStyle);
+    }
+
+    public void gotoFragment(int tag) {
+        switch (tag) {
+            case TAG_MAIN_FRAGMENT:
+                switchFragment(mMainFragment);
+                break;
+            case TAG_ROUTE_FRAGMENT:
+                switchFragment(mRouteFragment);
+                break;
+        }
+    }
+
+    public Location getMyLocation() {
+        return mMyLocation;
+    }
+
+    /*
+    * 地图重置定位
+    * */
+    public void resetMyLocationMap() {
+        changeMyLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE);
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM)); // 相机视角缩放
+    }
+
+    public void showDrivingRoute(DrivePath path, LatLonPoint startPos, LatLonPoint endPos) {
+        mMap.clear();
+        changeMyLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE_NO_CENTER);
+        DrivingRouteOverlay overlay = new DrivingRouteOverlay(getApplicationContext(),
+                mMap, path, startPos, endPos, null);
+        overlay.setNodeIconVisibility(false);   // 不显示节点Marker
+        overlay.setIsColorfulline(true);    // 以颜色展示交通拥堵情况
+        overlay.removeFromMap();
+        overlay.addToMap();
+        overlay.zoomToSpan();
+    }
+
+    public void showLoading(String content) {
+        mLoadingDialogFragment = LoadingDialogFragment.newInstance(content);
+        mLoadingDialogFragment.show(getSupportFragmentManager(), "Loading");
+    }
+
+    public void dismissLoading() {
+        mLoadingDialogFragment.dismiss();
     }
 
     @Override
@@ -214,49 +262,12 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
 
     @Override
     public void onBackPressed() {
-        if (mCurrentFragment.equals(mRouteFragment)) {
-            switchFragment(mMainFragment);
+        long now = System.currentTimeMillis();
+        if (now - mLastBackTime < 2000) {
+            super.onBackPressed();
         } else {
-            moveTaskToBack(false);
+            ToastUtil.showToast(this, "再按一次退出XMap");
+            mLastBackTime = now;
         }
-    }
-
-    public void locateMe() {
-        toggleMyLocationType();
-    }
-
-    public void gotoFragment(int tag) {
-        switch (tag) {
-            case TAG_MAIN_FRAGMENT:
-                switchFragment(mMainFragment);
-                break;
-            case TAG_ROUTE_FRAGMENT:
-                switchFragment(mRouteFragment);
-                break;
-        }
-    }
-
-    public Location getMyLocation() {
-        return mMyLocation;
-    }
-
-    /*
-    * 地图重置到我的定位
-    * */
-    public void resetMyLocationMap() {
-        changeMyLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE);
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM)); // 相机视角缩放
-    }
-
-    public void showDrivingRoute(DrivePath path, LatLonPoint startPos, LatLonPoint endPos) {
-        changeMyLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE_NO_CENTER);
-        mMap.clear();
-        DrivingRouteOverlay overlay = new DrivingRouteOverlay(getApplicationContext(),
-                mMap, path, startPos, endPos, null);
-        overlay.setNodeIconVisibility(false);   // 不显示节点Marker
-        overlay.setIsColorfulline(true);    // 以颜色展示交通拥堵情况
-        overlay.removeFromMap();
-        overlay.addToMap();
-        overlay.zoomToSpan();
     }
 }

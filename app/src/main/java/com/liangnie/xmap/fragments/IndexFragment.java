@@ -34,7 +34,7 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
         if (null != activity) {
             switch (v.getId()) {
                 case R.id.fab_location:
-                    activity.locateMe();
+                    activity.toggleMyLocationType();
                     break;
                 case R.id.btn_road:
                     activity.gotoFragment(MainMapActivity.TAG_ROUTE_FRAGMENT);

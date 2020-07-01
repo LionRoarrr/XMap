@@ -29,10 +29,8 @@ import com.liangnie.xmap.utils.MapUtil;
 public class DriveRouteFragment extends Fragment implements View.OnClickListener,
         INaviInfoCallback {
 
-    private DriveRouteResult mRouteResult;
     private PoiItem mStartPoi;
     private PoiItem mEndPoi;
-    private DrivingDetailListAdapter mDrivingDetailListAdapter;
 
     private TextView mPlanTime;
     private TextView mPlanDistance;
@@ -70,21 +68,28 @@ public class DriveRouteFragment extends Fragment implements View.OnClickListener
         setData();
     }
 
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        if (!hidden) {
+            setData();
+        }
+    }
+
     private void setData() {
         Bundle data = getArguments();
         if (data != null) {
-            mRouteResult = data.getParcelable("DriveRouteResult");
+            DriveRouteResult result = data.getParcelable("DriveRouteResult");
             mStartPoi = data.getParcelable("StartPoi");
             mEndPoi = data.getParcelable("EndPoi");
 
-            DrivePath path = mRouteResult.getPaths().get(0);
+            DrivePath path = result.getPaths().get(0);
             mPlanTime.setText(MapUtil.getFriendlyTime((int) path.getDuration()));
             mPlanDistance.setText(MapUtil.getFriendlyLength((int) path.getDistance()));
 
-            String costStr = "打车约" + mRouteResult.getTaxiCost() + "元";
+            String costStr = "打车约" + result.getTaxiCost() + "元";
             mTaxiCost.setText(costStr);
 
-            mDrivingDetailListAdapter = new DrivingDetailListAdapter(getActivity(), mRouteResult.getPaths().get(0).getSteps());
+            DrivingDetailListAdapter mDrivingDetailListAdapter = new DrivingDetailListAdapter(getActivity(), result.getPaths().get(0).getSteps());
             mDetailList.setAdapter(mDrivingDetailListAdapter);
         }
     }
@@ -131,13 +136,6 @@ public class DriveRouteFragment extends Fragment implements View.OnClickListener
         RouteFragment fragment = (RouteFragment) getParentFragment();
         if (fragment != null) {
             fragment.hideSearchBar();
-        }
-    }
-
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        if (!hidden) {
-            setData();
         }
     }
 

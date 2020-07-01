@@ -21,7 +21,6 @@ import com.liangnie.xmap.adapters.BusPathListAdapter;
 
 public class BusRouteFragment extends Fragment implements ListView.OnItemClickListener {
 
-    private BusRouteResult mResult;
     private BusPathListAdapter mPathAdapter;
 
     private FrameLayout mDetailView;
@@ -48,7 +47,7 @@ public class BusRouteFragment extends Fragment implements ListView.OnItemClickLi
     public void onStart() {
         super.onStart();
 
-        setData();  // 每次显示该Fragment都设置数据并重新显示
+        setData();
     }
 
     @Override
@@ -63,7 +62,7 @@ public class BusRouteFragment extends Fragment implements ListView.OnItemClickLi
     private void setData() {
         Bundle data = getArguments();
         if (data != null) {
-            mResult = data.getParcelable("BusRouteResult");
+            BusRouteResult mResult = data.getParcelable("BusRouteResult");
             mPathAdapter = new BusPathListAdapter(getActivity(), mResult.getPaths());
             mBusPathList.setAdapter(mPathAdapter);
         }
