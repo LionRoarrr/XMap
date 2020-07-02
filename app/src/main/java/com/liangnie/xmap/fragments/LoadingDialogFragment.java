@@ -14,8 +14,7 @@ import androidx.fragment.app.DialogFragment;
 import com.liangnie.xmap.R;
 
 public class LoadingDialogFragment extends DialogFragment {
-    public LoadingDialogFragment() {
-    }
+    private LoadingDialogFragment() {}
 
     public static LoadingDialogFragment newInstance(String content) {
         LoadingDialogFragment fragment =  new LoadingDialogFragment();

@@ -1,10 +1,16 @@
 package com.liangnie.xmap.activities;
 
+import android.Manifest;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -21,8 +27,10 @@ import com.amap.api.maps.model.MyLocationStyle;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.route.DrivePath;
 import com.liangnie.xmap.R;
+import com.liangnie.xmap.fragments.HintDialogFragment;
 import com.liangnie.xmap.fragments.LoadingDialogFragment;
 import com.liangnie.xmap.fragments.MainFragment;
+import com.liangnie.xmap.fragments.PermissionFragment;
 import com.liangnie.xmap.fragments.RouteFragment;
 import com.liangnie.xmap.overlays.DrivingRouteOverlay;
 import com.liangnie.xmap.utils.ToastUtil;
@@ -32,6 +40,7 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
 
     public static final int TAG_MAIN_FRAGMENT = 1;
     public static final int TAG_ROUTE_FRAGMENT = 2;
+    public static final int CODE_REQUEST_LOCATION = 100;
 
     private static final int DEFAULT_ZOOM = 16; // 地图默认缩放等级
 
@@ -45,7 +54,7 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
     private Fragment mCurrentFragment;
     private MainFragment mMainFragment; // 主要Fragment
     private RouteFragment mRouteFragment; // 路线Fragment
-    private LoadingDialogFragment mLoadingDialogFragment;
+    private LoadingDialogFragment mLoadingDialogFragment;   // 加载弹窗
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +63,7 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
 
         initView(savedInstanceState);   // 初始化视图
         initFragment();
+        initPermission();
     }
 
     @Override
@@ -80,13 +90,6 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
         mMapView.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void onMyLocationChange(Location location) {
-        if (null != location) {
-            mMyLocation = location;
-        }
-    }
-
     public void initView(Bundle savedInstanceState) {
 //        mFabLocation = findViewById(R.id.fab_location);
         mMapView = findViewById(R.id.map_view);
@@ -107,21 +110,41 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
 
         // 地图UI设置
         UiSettings settings = mMap.getUiSettings(); // 获取地图控制器UI设置
-        settings.setLogoBottomMargin(-50);  // 下偏移高德logo以隐藏
+        settings.setLogoBottomMargin(220);  // 下偏移高德logo以隐藏
         settings.setZoomControlsEnabled(false); // 不显示缩放控件
+    }
+
+    private void initPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isRequestPermission()) {
+            PermissionFragment fragment = new PermissionFragment();
+            switchFragment(fragment);
+        } else {
+            switchFragment(mMainFragment);
+        }
+    }
+
+    private boolean isRequestPermission() {
+        SharedPreferences sp = getSharedPreferences("launchData", MODE_PRIVATE);
+        return sp.getBoolean("isRequestPermission", false);
     }
 
     public void initFragment() {
         mMainFragment = new MainFragment();
         mRouteFragment = new RouteFragment();
-
-        switchFragment(mMainFragment);  // 显示首页
     }
 
     private void switchFragment(Fragment target) {
         mMap.clear();   // 清理地图
         resetMyLocationMap();    // 自动定位到我的位置
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        // 在主Fragment中显示比例尺，其他界面隐藏
+        UiSettings settings = mMap.getUiSettings();
+        if (target.equals(mMainFragment)) {
+            settings.setScaleControlsEnabled(true);
+        } else {
+            settings.setScaleControlsEnabled(false);
+        }
 
         if (!target.isAdded()) {
             if (mCurrentFragment != null) {
@@ -136,12 +159,37 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
         mCurrentFragment = target;
     }
 
+    public boolean hasLocationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String permission = Manifest.permission.ACCESS_FINE_LOCATION;
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                if (shouldShowRequestPermissionRationale(permission)) {
+                    HintDialogFragment dialog = HintDialogFragment.newInstance("需要定位权限"
+                            , "确定您的位置需要打开定位权限，是否打开？");
+                    dialog.setPositiveButton("确定", v -> {
+                        requestPermissions(new String[]{permission}, CODE_REQUEST_LOCATION);
+                        dialog.dismiss();
+                    }).show(getSupportFragmentManager(), "HintDialog");
+                } else {
+                    requestPermissions(new String[]{permission}, CODE_REQUEST_LOCATION);
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
     /*
     * 定位按钮点击时切换定位模式
     * */
     public void toggleMyLocationType() {
-        LatLng position = mMap.getCameraPosition().target;
+        // 检查定位权限
+        if (!hasLocationPermission()) {
+            Log.i("TAG", "toggleMyLocationType: 1");
+            return;
+        }
 
+        LatLng position = mMap.getCameraPosition().target;
         // 坐标精度
         int accuracy = 10000;
         long pLatitude = (long) (position.latitude * accuracy);
@@ -220,6 +268,13 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
     }
 
     @Override
+    public void onMyLocationChange(Location location) {
+        if (null != location) {
+            mMyLocation = location;
+        }
+    }
+
+    @Override
     public void onDoubleTap(float v, float v1) {
 
     }
@@ -268,6 +323,24 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
         } else {
             ToastUtil.showToast(this, "再按一次退出XMap");
             mLastBackTime = now;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case CODE_REQUEST_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        HintDialogFragment dialog = HintDialogFragment.newInstance("需要定位权限"
+                                , "请在[系统设置 > 应用 > XMap > 权限]中打开定位权限");
+                        dialog.show(getSupportFragmentManager(), "HintDialog");
+                    }
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }

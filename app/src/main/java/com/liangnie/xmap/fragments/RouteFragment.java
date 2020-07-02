@@ -260,21 +260,25 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
     }
 
     private void tryPlanRoute() {
+        MainMapActivity activity = (MainMapActivity) getActivity();
+        if (activity != null) {
+            if (!activity.hasLocationPermission()) {
+                return;
+            }
+        } else {
+            return;
+        }
+
         if (mStartPoi != null && mEndPoi != null) {
             if (!mStartPoi.getPoiId().equals(mEndPoi.getPoiId())) {
                 RouteSearch.FromAndTo fromAndTo = new RouteSearch.FromAndTo(mStartPoi.getLatLonPoint(), mEndPoi.getLatLonPoint());
-                MainMapActivity activity = (MainMapActivity) getActivity();
                 if (mPlanMode == MODE_DRIVE) {
-                    if (activity != null) {
-                        activity.showLoading("正在规划驾车路线");
-                    }
+                    activity.showLoading("正在规划驾车路线");
                     RouteSearch.DriveRouteQuery query = new RouteSearch.DriveRouteQuery(fromAndTo, RouteSearch.
                             DRIVING_MULTI_STRATEGY_FASTEST_SHORTEST_AVOID_CONGESTION, null, null, "");
                     mRouteSearch.calculateDriveRouteAsyn(query);
                 } else if (mPlanMode == MODE_BUS) {
-                    if (activity != null) {
-                        activity.showLoading("正在规划公交路线");
-                    }
+                    activity.showLoading("正在规划公交路线");
                     // 第一个参数表示路径规划的起点和终点，第二个参数表示公交查询模式，第三个参数表示公交查询城市区号，第四个参数表示是否计算夜班车，0表示不计算
                     RouteSearch.BusRouteQuery query = new RouteSearch.BusRouteQuery(fromAndTo,
                             RouteSearch.BUS_DEFAULT,
@@ -349,13 +353,11 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
                         activity.dismissLoading();
                     }
                     return;
-                } else {
-                    ToastUtil.showToast(getActivity(), getString(R.string.no_bus_route_result));
                 }
-            } else {
-                ToastUtil.showToast(getActivity(), getString(R.string.no_bus_route_result));
             }
         }
+
+        ToastUtil.showToast(getActivity(), getString(R.string.no_bus_route_result));
         if (activity != null) {
             activity.dismissLoading();
         }
@@ -381,13 +383,11 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
                     switchFragment(mDriveRouteFragment);
                     activity.dismissLoading();
                     return;
-                } else {
-                    ToastUtil.showToast(getActivity(), getString(R.string.no_drive_route_result));
                 }
-            } else {
-                ToastUtil.showToast(getActivity(), getString(R.string.no_drive_route_result));
             }
         }
+
+        ToastUtil.showToast(getActivity(), getString(R.string.no_drive_route_result));
         if (activity != null) {
             activity.dismissLoading();
         }

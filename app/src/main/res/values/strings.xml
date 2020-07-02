@@ -21,4 +21,11 @@
     <string name="divider">分割线</string>
     <string name="no_bus_route_result">该线路没有公交换乘信息</string>
     <string name="no_drive_route_result">无驾车规划路线</string>
+    <string name="welcome">欢迎使用XMap</string>
+    <string name="need_permission">XMap提供的服务需要以下权限：</string>
+    <string name="storage_permission">·存储权限</string>
+    <string name="location_permission">·定位权限</string>
+    <string name="phone_permission">·电话权限</string>
+    <string name="agree">同意</string>
+    <string name="deny">拒绝</string>
 </resources>

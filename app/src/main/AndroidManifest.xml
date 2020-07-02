@@ -23,7 +23,8 @@
             android:name="com.amap.api.navi.AmapRouteActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@android:style/Theme.NoTitleBar" />
-        <activity android:name=".activities.MainMapActivity">
+        <activity android:name=".activities.MainMapActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
