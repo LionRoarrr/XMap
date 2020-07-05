@@ -13,7 +13,7 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.services.core.PoiItem;
 import com.liangnie.xmap.R;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -25,12 +25,7 @@ public class PoiItemsAdapter extends BaseAdapter {
 
     public PoiItemsAdapter(Context mContext) {
         this.mContext = mContext;
-        mList = new LinkedList<>();
-    }
-
-    public PoiItemsAdapter(Context mContext, List<PoiItem> mList) {
-        this.mContext = mContext;
-        this.mList = mList;
+        mList = new ArrayList<>();
     }
 
     public void setMyLocation(Location mMyLocation) {
@@ -97,8 +92,8 @@ public class PoiItemsAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void addItem(PoiItem item) {
-        mList.add(item);
+    public void addAll(List<PoiItem> list) {
+        mList.addAll(list);
     }
 
     public void clear() {

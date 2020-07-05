@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.core.PoiItem;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
@@ -42,7 +41,6 @@ public class RouteSearchResultFragment extends Fragment implements PoiSearch.OnP
 
         resetPageNum();
         mPoiItemsAdapter = new PoiItemsAdapter(getActivity());
-        mPoiItemsAdapter.setMyLocation(getMyLocation());
     }
 
     @Nullable
@@ -90,19 +88,10 @@ public class RouteSearchResultFragment extends Fragment implements PoiSearch.OnP
         mOnItemClickListener = listener;
     }
 
-    private void searchPoi(String keyword, int pageNum) {
-        PoiSearch.Query query = new PoiSearch.Query(keyword, "");
-
-        // 设置POI搜索位置原点
-        Location location = getMyLocation();
-        if (null != location) {
-            LatLonPoint point = new LatLonPoint(location.getLatitude(), location.getLongitude());
-            query.setLocation(point);
-        }
-
+    private void searchPoi(String keyWord) {
+        PoiSearch.Query query = new PoiSearch.Query(keyWord, "", "");
         query.setPageSize(SEARCH_PAGE_SIZE);
-        query.setPageNum(pageNum);
-        query.setDistanceSort(false);
+        query.setPageNum(mCurrentPageNum);
 
         PoiSearch search = new PoiSearch(getActivity(), query);
         search.setOnPoiSearchListener(this);
@@ -113,19 +102,19 @@ public class RouteSearchResultFragment extends Fragment implements PoiSearch.OnP
     public void onPoiSearched(PoiResult poiResult, int i) {
         if (i == 1000) {
             if (!poiResult.getPois().isEmpty()) {
-                if (!StringUtil.isEmptyOrNull(mKeyWord)) {
-                    for (PoiItem item: poiResult.getPois()) {
-                        mPoiItemsAdapter.addItem(item);
-                    }
-                    mPoiItemsAdapter.notifyDataSetChanged();
+                MainMapActivity activity = (MainMapActivity) getActivity();
+                if (activity != null) {
+                    mPoiItemsAdapter.setMyLocation(activity.getMyLocation());
                 }
+                mPoiItemsAdapter.addAll(poiResult.getPois());
+                mPoiItemsAdapter.notifyDataSetChanged();
             } else if (mCurrentPageNum > 1) {
                 ToastUtil.showToast(getActivity(), "没有更多了~");
             }
-            mPoiItemListView.loadMoreCompleted();
         } else {
             ToastUtil.showToast(getActivity(), "查询失败，请重试！");
         }
+        mPoiItemListView.loadMoreCompleted();
     }
 
     @Override
@@ -145,18 +134,20 @@ public class RouteSearchResultFragment extends Fragment implements PoiSearch.OnP
 
     @Override
     public void afterTextChanged(Editable s) {
-        mPoiItemsAdapter.clear();
-        mPoiItemsAdapter.notifyDataSetChanged();
-        mKeyWord = s.toString();
+        if (mPoiItemsAdapter != null) {
+            mPoiItemsAdapter.clear();
+            mPoiItemsAdapter.notifyDataSetChanged();
+        }
+        mKeyWord = s.toString().trim();
         resetPageNum();
         if (!StringUtil.isEmptyOrNull(mKeyWord)) {
-            searchPoi(mKeyWord, mCurrentPageNum);
+            searchPoi(mKeyWord);
         }
     }
 
     @Override
     public void onLoadMore() {
         mCurrentPageNum++;
-        searchPoi(mKeyWord, mCurrentPageNum);
+        searchPoi(mKeyWord);
     }
 }

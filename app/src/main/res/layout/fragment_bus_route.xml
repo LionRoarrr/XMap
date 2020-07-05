@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/simple_info">
+    android:background="@color/simple_info"
+    android:clickable="true"
+    android:focusable="true">
 
     <FrameLayout
         android:id="@+id/bus_path_detail_view"
@@ -54,5 +56,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="10dp"
-        android:background="@drawable/lrt_corner_shape" />
+        android:background="@drawable/lrt_corner_shape_white" />
 </LinearLayout>

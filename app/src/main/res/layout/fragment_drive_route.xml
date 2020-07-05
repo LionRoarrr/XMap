@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/lrt_corner_shape"
+        android:background="@drawable/lrt_corner_shape_white"
         android:elevation="@dimen/elevation_default"
         android:padding="10dp">
 

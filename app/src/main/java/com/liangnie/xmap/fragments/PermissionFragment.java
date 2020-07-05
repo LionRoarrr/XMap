@@ -51,7 +51,7 @@ public class PermissionFragment extends Fragment {
             SharedPreferences.Editor editor = activity.getSharedPreferences("launchData", Context.MODE_PRIVATE).edit();
             editor.putBoolean("isRequestPermission", true);
             editor.apply();
-            activity.gotoFragment(MainMapActivity.TAG_MAIN_FRAGMENT);
+            activity.gotoFragment(MainMapActivity.TAG_MAIN_FRAGMENT, null);
         }
     }
 }

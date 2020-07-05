@@ -6,6 +6,7 @@
     <dimen name="component_margin">10dp</dimen>
     <dimen name="search_icon_size">25dp</dimen>
     <dimen name="default_icon_size">30dp</dimen>
+    <dimen name="mini_icon_size">20dp</dimen>
     <dimen name="small_icon_size">26dp</dimen>
     <dimen name="default_text_size">18sp</dimen>
     <dimen name="default_radius">10dp</dimen>

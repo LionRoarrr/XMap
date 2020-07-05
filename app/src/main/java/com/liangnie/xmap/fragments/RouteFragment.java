@@ -116,12 +116,22 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
 
     private void setData() {
         MainMapActivity activity = (MainMapActivity) getActivity();
-        if (null != activity) {
+        if (activity != null) {
             Location myLocation = activity.getMyLocation();
-            mCurrentCityCode = myLocation.getExtras().getString("citycode");
-            LatLonPoint point = new LatLonPoint(myLocation.getLatitude(), myLocation.getLongitude());
-            if (mStartPoi == null) {
-                setStartPoi(new PoiItem("", point, "我的位置", ""));
+            if (myLocation != null) {
+                mCurrentCityCode = myLocation.getExtras().getString("citycode");
+                LatLonPoint point = new LatLonPoint(myLocation.getLatitude(), myLocation.getLongitude());
+                if (mStartPoi == null) {
+                    setStartPoi(new PoiItem("", point, "我的位置", ""));
+                }
+            }
+        }
+
+        if (getArguments() != null) {
+            PoiItem item = getArguments().getParcelable("poiItem");
+            if (item != null) {
+                setEndPoi(item);
+                tryPlanRoute();
             }
         }
     }
@@ -171,10 +181,10 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
         mInputDestination.removeTextChangedListener(mRouteResultFragment);
     }
 
-    public void backMainFragment() {
+    public void back() {
         MainMapActivity activity = (MainMapActivity) getActivity();
         if (null != activity) {
-            activity.gotoFragment(MainMapActivity.TAG_MAIN_FRAGMENT);
+            activity.back();
         }
     }
 
@@ -211,11 +221,15 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
     }
 
     private void removeInputFocus() {
-        mInputOrigin.clearFocus();
-        mInputDestination.clearFocus();
+        if (mInputOrigin.hasFocus()) {
+            mInputOrigin.clearFocus();
+        }
+        if (mInputDestination.hasFocus()) {
+            mInputDestination.clearFocus();
+        }
 
-        InputMethodManager imm = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            InputMethodManager imm;
             imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getActivity().getWindow().getDecorView().getWindowToken(), 0);
         }
@@ -286,7 +300,7 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
                     mRouteSearch.calculateBusRouteAsyn(query);// 异步路径规划公交模式查询
                 }
             } else {
-                ToastUtil.showToast(getActivity(), "起点和终点不能相同");
+                ToastUtil.showToast(getActivity(), "起点和目的地不能相同");
             }
         }
     }
@@ -303,7 +317,7 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_back:
-                backMainFragment();
+                back();
                 break;
             case R.id.btn_swap_route:
                 routeReverse();
@@ -332,7 +346,8 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (mInputOrigin.hasFocus()) {
             setStartPoi(mRouteResultFragment.getPoiItem(position));
-        } else if (mInputDestination.hasFocus()) {
+        }
+        if (mInputDestination.hasFocus()) {
             setEndPoi(mRouteResultFragment.getPoiItem(position));
         }
         removeInputFocus();
@@ -410,23 +425,26 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
         if (hasFocus) {
             switchFragment(mRouteResultFragment);
         } else {
-            if (mStartPoi != null) {
-                String str = mInputOrigin.getText().toString();
-                if (!mStartPoi.getTitle().equals(str)) {
-                    setStartPoi(null);
+            if (v.getId() == R.id.input_origin) {
+                if (mStartPoi != null) {
+                    String str = mInputOrigin.getText().toString();
+                    if (!mStartPoi.getTitle().equals(str)) {
+                        setStartPoi(null);
+                    }
+                } else {
+                    setInputOriginText("");
                 }
-            } else {
-              setInputDestText("");
             }
 
-
-            if (mEndPoi != null) {
-                String str = mInputDestination.getText().toString();
-                if (!mEndPoi.getTitle().equals(str)) {
-                    setEndPoi(null);
+            if (v.getId() == R.id.input_destination) {
+                if (mEndPoi != null) {
+                    String str = mInputDestination.getText().toString();
+                    if (!mEndPoi.getTitle().equals(str)) {
+                        setEndPoi(null);
+                    }
+                } else {
+                    setInputDestText("");
                 }
-            } else {
-                setInputDestText("");
             }
         }
     }

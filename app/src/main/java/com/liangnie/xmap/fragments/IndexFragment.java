@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,9 +22,11 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_index, container, false);
         FloatingActionButton fab = view.findViewById(R.id.fab_location);
         ImageButton roadButton = view.findViewById(R.id.btn_road);
+        LinearLayout searchView = view.findViewById(R.id.search_view);
 
         fab.setOnClickListener(this);
         roadButton.setOnClickListener(this);
+        searchView.setOnClickListener(this);
 
         return view;
     }
@@ -37,7 +40,10 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
                     activity.toggleMyLocationType();
                     break;
                 case R.id.btn_road:
-                    activity.gotoFragment(MainMapActivity.TAG_ROUTE_FRAGMENT);
+                    activity.gotoFragment(MainMapActivity.TAG_ROUTE_FRAGMENT, null);
+                    break;
+                case R.id.search_view:
+                    activity.gotoFragment(MainMapActivity.TAG_SEARCH_FRAGMENT, null);
                     break;
             }
         }

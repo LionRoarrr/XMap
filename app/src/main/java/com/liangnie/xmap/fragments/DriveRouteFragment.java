@@ -122,7 +122,7 @@ public class DriveRouteFragment extends Fragment implements View.OnClickListener
         mDetailList.setVisibility(View.GONE);
         mViewDetailButton.setVisibility(View.VISIBLE);
         mFoldDetailButton.setVisibility(View.GONE);
-        mDetailBar.setBackgroundResource(R.drawable.lrt_corner_shape);
+        mDetailBar.setBackgroundResource(R.drawable.lrt_corner_shape_white);
     }
 
     private void showSearchBar() {

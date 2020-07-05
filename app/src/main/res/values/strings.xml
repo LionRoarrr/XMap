@@ -28,4 +28,14 @@
     <string name="phone_permission">·电话权限</string>
     <string name="agree">同意</string>
     <string name="deny">拒绝</string>
+    <string name="click_to_login">点击登录</string>
+    <string name="about">关于</string>
+    <string name="log_out">注销登录</string>
+    <string name="avatar">头像</string>
+    <string name="clear">清除</string>
+    <string name="clear_history_record">清除历史记录</string>
+    <string name="route_line">路线</string>
+    <string name="hotel">酒店</string>
+    <string name="market">超市</string>
+    <string name="bank">银行</string>
 </resources>

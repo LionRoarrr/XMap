@@ -1,5 +1,8 @@
 package com.liangnie.xmap.utils;
 
+import android.content.Context;
+import android.location.LocationManager;
+
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.route.BusPath;
@@ -63,6 +66,11 @@ public class MapUtil {
         }
 
         return dis + "米";
+    }
+
+    public static String getFriendlyPoiType(String typeDes) {
+        String[] strings = typeDes.split(";");
+        return strings[1];
     }
 
     /*
@@ -159,5 +167,15 @@ public class MapUtil {
             return "";
         }
         return busLineName.replaceAll("\\(.*?--.*?\\)", "");
+    }
+
+    public static boolean isOPenGps(final Context context) {
+        LocationManager locationManager
+                = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        // 通过GPS卫星定位，定位级别可以精确到街（通过24颗卫星定位，在室外和空旷的地方定位准确、速度快）
+        boolean gps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        // 通过WLAN或移动网络(3G/2G)确定的位置（也称作AGPS，辅助GPS定位。主要用于在室内或遮盖物（建筑群或茂密的深林等）密集的地方定位）
+        boolean network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        return gps || network;
     }
 }
