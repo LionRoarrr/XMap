@@ -38,4 +38,6 @@
     <string name="hotel">酒店</string>
     <string name="market">超市</string>
     <string name="bank">银行</string>
+    <string name="login">登录</string>
+    <string name="register">注册</string>
 </resources>

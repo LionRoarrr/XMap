@@ -1,6 +1,5 @@
-package com.liangnie.xmap.login;
+package com.liangnie.xmap.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -8,14 +7,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.liangnie.xmap.MainActivity;
 import com.liangnie.xmap.R;
-
-import java.util.ArrayList;
+import com.liangnie.xmap.dbhelper.UserDBHelper;
+import com.liangnie.xmap.utils.CheckCode;
+import com.liangnie.xmap.utils.ToastUtil;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -83,53 +81,25 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                             int event = userDB.isExist(username, password2);
                             if(event == 3) {    //表中不存在数据
                                 userDB.addUser(username, password2);
-                                startActivity(new Intent(this, MainActivity.class));
                                 finish();
-                                Toast.makeText(this, "注册成功", Toast.LENGTH_SHORT).show();
+                                ToastUtil.showToast(this, "注册成功");
                             } else if(event == 0) {
                                 userDB.addUser(username, password2);
-                                startActivity(new Intent(this, MainActivity.class));
                                 finish();
-                                Toast.makeText(this, "注册成功", Toast.LENGTH_SHORT).show();
+                                ToastUtil.showToast(this, "注册成功");
                             } else {
-                                Toast.makeText(this, "用户名已存在，请更改用户名", Toast.LENGTH_SHORT).show();
+                                ToastUtil.showToast(this, "用户名已存在，请更改用户名");
                             }
-    //                        ArrayList<User> data = userDB.getAllData();
-    //                        boolean match = true;
-    //                        if(data.size() != 0) {  //判断用户表中的数据是否为空
-    //                            for(int i = 0; i < data.size(); i++) {
-    //                                User user = data.get(i);
-    //                                if(username.equals(user.getName())) {  //判断用户名是否存在
-    //                                    match = false;
-    //                                    break;
-    //                                }
-    //                            }
-    //                            if(match) {
-    //                                userDB.addUser(username, password2);
-    //                                Intent intent = new Intent(this, MainActivity.class);
-    //                                startActivity(intent);
-    //                                finish();
-    //                                Toast.makeText(this, "注册成功", Toast.LENGTH_SHORT).show();
-    //                            } else {
-    //                                Toast.makeText(this, "用户名已存在，请更改用户名", Toast.LENGTH_SHORT).show();
-    //                            }
-    //                        } else {
-    //                            userDB.addUser(username, password2);
-    //                            Intent intent = new Intent(this, MainActivity.class);
-    //                            startActivity(intent);
-    //                            finish();
-    //                            Toast.makeText(this, "注册成功", Toast.LENGTH_SHORT).show();
-    //                        }
                         } else {
-                            Toast.makeText(this, "验证码错误，请重新输入", Toast.LENGTH_SHORT).show();
+                            ToastUtil.showToast(this, "验证码错误，请重新输入");
                         }
                     } else {
-                        Toast.makeText(this, "两次输入的密码不一致，请重新输入", Toast.LENGTH_SHORT).show();
+                        ToastUtil.showToast(this, "两次输入的密码不一致，请重新输入");
                     }
                 } else {
-                    Toast.makeText(this, "未完善信息，注册失败", Toast.LENGTH_SHORT).show();
+                    ToastUtil.showToast(this, "请填写完全注册信息");
                 }
-                break;
+            break;
         }
     }
 }

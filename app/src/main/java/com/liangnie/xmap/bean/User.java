@@ -1,4 +1,4 @@
-package com.liangnie.xmap.login;
+package com.liangnie.xmap.bean;
 
 public class User {
     private String username;

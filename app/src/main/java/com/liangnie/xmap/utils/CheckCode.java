@@ -1,4 +1,4 @@
-package com.liangnie.xmap.login;
+package com.liangnie.xmap.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

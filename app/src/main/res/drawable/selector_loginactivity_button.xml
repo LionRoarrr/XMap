@@ -7,9 +7,7 @@
             <!--圆角-->
             <corners android:radius="5dp" />
             <!--填充颜色-->
-            <solid android:color="#093DE7" />
-            <!--描边-->
-            <stroke android:width="1dp" android:color="#fff" />
+            <solid android:color="@color/primary" />
         </shape>
     </item>
     <!--单击时是一个带圆角,绿色背景,白色边框的矩形-->
@@ -18,9 +16,7 @@
             <!--圆角-->
             <corners android:radius="5dp" />
             <!--填充颜色-->
-            <solid android:color="#008B8B" />
-            <!--描边-->
-            <stroke android:width="1dp" android:color="#fff" />
+            <solid android:color="@color/info" />
         </shape>
     </item>
 </selector>

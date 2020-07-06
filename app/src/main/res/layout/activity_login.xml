@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/tb_linear_gradients_primary"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activities.LoginActivity">
+
+    <RelativeLayout
+        android:id="@+id/rl_actlogin_top"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@color/white"
+        android:elevation="@dimen/elevation_default">
+
+        <ImageButton
+            android:id="@+id/iv_actlogin_back"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@null"
+            android:scaleType="fitXY"
+            android:src="@drawable/back"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/back" />
+
+        <TextView
+            android:id="@+id/tv_actlogin_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login"
+            android:textColor="@color/primary"
+            android:textSize="20sp"
+            android:layout_centerInParent="true" />
+
+        <TextView
+            android:id="@+id/tv_actlogin_register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="@string/register"
+            android:textColor="@color/primary"
+            android:textSize="20sp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_actlogin_two"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/corner_shape"
+        android:layout_marginTop="10dp"
+        android:padding="20dp"
+        android:orientation="vertical"
+        android:layout_centerVertical="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_actlogin_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:text="用户名"/>
+
+            <EditText
+                android:id="@+id/et_actlogin_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:hint="请输入用户名"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_actlogin_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:text="密码"/>
+
+            <EditText
+                android:id="@+id/et_actlogin_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:hint="请输入密码"
+                android:inputType="textPassword"/>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/bt_actlogin_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/selector_loginactivity_button"
+            android:text="@string/login"
+            android:textColor="#fff"
+            android:textSize="20sp"/>
+    </LinearLayout>
+</RelativeLayout>

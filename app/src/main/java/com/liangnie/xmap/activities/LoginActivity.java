@@ -1,23 +1,23 @@
-package com.liangnie.xmap.login;
+package com.liangnie.xmap.activities;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.liangnie.xmap.MainActivity;
 import com.liangnie.xmap.R;
-
-import java.util.ArrayList;
+import com.liangnie.xmap.bean.User;
+import com.liangnie.xmap.dbhelper.UserDBHelper;
+import com.liangnie.xmap.utils.ToastUtil;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
     private UserDBHelper userDB;
@@ -27,6 +27,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText passwordET;
     private LinearLayout twoLL;
     private Button loginBT;
+    private ImageButton backBT;
 
 
     @Override
@@ -45,10 +46,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         passwordET = findViewById(R.id.et_actlogin_password);
         twoLL = findViewById(R.id.ll_actlogin_two);
         loginBT = findViewById(R.id.bt_actlogin_login);
+        backBT = findViewById(R.id.iv_actlogin_back);
 
         //设置事件监听器
         loginBT.setOnClickListener(this);
         registerTV.setOnClickListener(this);
+        backBT.setOnClickListener(this);
+    }
+
+    private void saveLocalUser(User user) {
+        SharedPreferences.Editor editor = getSharedPreferences("user_info", MODE_PRIVATE).edit();
+        editor.putString("username", user.getName());
+        editor.apply();
     }
 
     @Override
@@ -66,36 +75,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 if(!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password)) {
                     int event = userDB.isExist(username, password);
                     if(event == 1) {
-                        startActivity(new Intent(this, MainActivity.class));
+                        User user = new User(username, password);
+                        saveLocalUser(user);
                         finish();
-                        Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
+                        ToastUtil.showToast(this, "登录成功");
                     } else {
-                        Toast.makeText(this, "账号或密码错误，请重新输入", Toast.LENGTH_SHORT).show();
+                        ToastUtil.showToast(this, "账号或密码错误，请重新输入");
                     }
-//                    ArrayList<User> data = userDB.getAllData();
-//                    boolean match = false;
-//                    for(int i = 0; i < data.size(); i++) {
-//                        User user = data.get(i);
-//                        if(username.equals(user.getName()) && password.equals(user.getPassword())) {
-//                            match = true;
-//                            break;
-//                        } else {
-//                            match = false;
-//                        }
-////                        System.out.println(user.getName());
-////                        System.out.println(user.getPassword());
-//                    }
-//                    if(match) {
-//                        Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
-//                        Intent intent = new Intent(this, MainActivity.class);
-//                        startActivity(intent);
-//                        finish();
-//                    } else {
-//                        Toast.makeText(this, "账号或密码错误，请重新输入", Toast.LENGTH_SHORT).show();
-//                    }
                 } else {
-                    Toast.makeText(this, "请输入您的账号和密码", Toast.LENGTH_SHORT).show();
+                    ToastUtil.showToast(this, "请输入用户名和密码");
                 }
+                break;
+
+            case R.id.iv_actlogin_back:
+                finish();
                 break;
         }
     }

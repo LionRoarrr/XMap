@@ -2,36 +2,37 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/tb_linear_gradients_primary"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".login.RegisterActivity"
-    android:background="#eeeeee">
+    tools:context=".activities.RegisterActivity">
 
     <RelativeLayout
         android:id="@+id/rl_actregister_top"
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:background="#14F3D3">
+        android:background="@color/white"
+        android:elevation="@dimen/elevation_default">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/iv_actregister_back"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@drawable/ic_left_back"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@null"
+            android:scaleType="fitXY"
+            android:src="@drawable/back"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:clickable="true"
-            android:onClick="onClick"/>
+            android:contentDescription="@string/back" />
 
         <TextView
             android:id="@+id/tv_actregister_register"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="注册"
-            android:textColor="#fff"
-            android:textSize="20dp"
-            android:layout_toRightOf="@id/iv_actregister_back"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="20dp" />
+            android:text="@string/register"
+            android:textColor="@color/primary"
+            android:textSize="20sp"
+            android:layout_centerInParent="true" />
 
     </RelativeLayout>
 
@@ -39,27 +40,31 @@
         android:id="@+id/ll_actregister_body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@+id/rl_actregister_top"
+        android:background="@drawable/corner_shape"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp">
+        android:padding="20dp"
+        android:orientation="vertical"
+        android:layout_centerVertical="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_actregister_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="用   户   名:  "/>
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                android:text="用户名"/>
 
             <EditText
                 android:id="@+id/et_actregister_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:hint="请输入用户名"/>
 
         </LinearLayout>
@@ -67,20 +72,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_actregister_password1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="密        码: "/>
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                android:text="密码"/>
 
             <EditText
                 android:id="@+id/et_actregister_password1"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:gravity="center_vertical"
-                android:layout_marginLeft="10dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:hint="请输入密码"
                 android:inputType="textPassword"/>
 
@@ -89,20 +97,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_actregister_password2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="确认密码: "/>
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                android:text="确认密码"/>
 
             <EditText
                 android:id="@+id/et_actregister_password2"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:gravity="center_vertical"
-                android:layout_marginLeft="10dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:hint="请再次输入密码"
                 android:inputType="textPassword"/>
 
@@ -112,9 +123,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="15dp"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -125,25 +135,24 @@
                     android:id="@+id/tv_actregister_code"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="验  证  码: "/>
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    android:text="验证码"/>
 
                 <EditText
                     android:id="@+id/et_actregister_code"
                     android:layout_width="0dp"
                     android:layout_weight="3"
-                    android:layout_height="50dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:hint="请输入4位验证码"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:hint="请输入验证码"/>
 
                 <ImageView
                     android:id="@+id/iv_actregister_showcode"
                     android:layout_width="0dp"
-                    android:layout_height="70dp"
-                    android:layout_weight="1.5"
-                    android:clickable="true"
-                    android:onClick="onClick"
-                    android:layout_marginTop="-10dp"/>
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.5" />
 
             </LinearLayout>
         </LinearLayout>
@@ -151,27 +160,19 @@
         <Button
             android:id="@+id/bt_actregister_register"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginLeft="5dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:background="@drawable/selector_loginactivity_button"
+            android:text="@string/register"
             android:textColor="#fff"
-            android:text="注册"
-            android:onClick="onClick"
-            android:layout_marginTop="50dp"/>
+            android:textSize="20sp" />
 
-        <RelativeLayout
-            android:id="@+id/rl_actregister_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="10dp">
-
-            <TextView
-                android:layout_centerInParent="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="注册即代表同意《用户协议》"/>
-
-        </RelativeLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:text="注册即代表同意《用户协议》"/>
 
     </LinearLayout>
 
