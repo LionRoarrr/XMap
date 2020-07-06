@@ -92,6 +92,7 @@ public class RouteSearchResultFragment extends Fragment implements PoiSearch.OnP
         PoiSearch.Query query = new PoiSearch.Query(keyWord, "", "");
         query.setPageSize(SEARCH_PAGE_SIZE);
         query.setPageNum(mCurrentPageNum);
+        query.setCityLimit(true);
 
         PoiSearch search = new PoiSearch(getActivity(), query);
         search.setOnPoiSearchListener(this);

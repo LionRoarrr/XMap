@@ -116,6 +116,16 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         PoiSearch.Query query = new PoiSearch.Query(keyWord, "", "");
         query.setPageSize(DEFAULT_PAGE_SIZE);
         query.setPageNum(mCurrentPage);
+        query.setCityLimit(true);
+
+        MainMapActivity activity = (MainMapActivity) getActivity();
+        if (activity != null) {
+            Location location = activity.getMyLocation();
+            if (location != null) {
+                LatLonPoint point = new LatLonPoint(location.getLatitude(), location.getLongitude());
+                query.setLocation(point);
+            }
+        }
 
         PoiSearch search = new PoiSearch(getActivity(), query);
         search.setOnPoiSearchListener(this);
@@ -262,6 +272,8 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
                 mSearchListAdapter.notifyDataSetChanged();
             } else if (mCurrentPage > 1) {
                 ToastUtil.showToast(getActivity(), "没有更多了~");
+            } else {
+                ToastUtil.showToast(getActivity(), "搜索结果为空，换个关键词试试哦~");
             }
         } else {
             ToastUtil.showToast(getActivity(), "查询失败，请重试！");
