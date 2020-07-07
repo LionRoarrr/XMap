@@ -153,12 +153,16 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
 
         // 在主Fragment中显示比例尺，其他界面隐藏
         UiSettings settings = mMap.getUiSettings();
-        if (target.equals(mMainFragment)) {
+        if (target instanceof MainFragment) {
             settings.setScaleControlsEnabled(true);
         } else {
             settings.setScaleControlsEnabled(false);
         }
 
+        transaction.setCustomAnimations(R.anim.fragment_slide_left_enter,
+                R.anim.fragment_slide_left_exit,
+                R.anim.fragment_slide_right_enter,
+                R.anim.fragment_slide_right_exit);
         if (!target.isAdded()) {
             if (mCurrentFragment != null) {
                 transaction.hide(mCurrentFragment);

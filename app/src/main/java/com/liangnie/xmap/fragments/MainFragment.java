@@ -50,6 +50,10 @@ public class MainFragment extends Fragment implements RadioGroup.OnCheckedChange
 
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
+        transaction.setCustomAnimations(R.anim.fragment_slide_left_enter,
+                R.anim.fragment_slide_left_exit,
+                R.anim.fragment_slide_right_enter,
+                R.anim.fragment_slide_right_exit);
         if (!target.isAdded()) {
             if (mCurrentFragment != null) {
                 transaction.hide(mCurrentFragment);
