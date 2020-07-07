@@ -126,7 +126,7 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
             PermissionFragment fragment = new PermissionFragment();
             switchFragment(fragment, false);
         } else {
-            switchFragment(mMainFragment, false);
+            switchFragment(mMainFragment, true);
         }
     }
 
@@ -142,6 +142,11 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
     }
 
     private void switchFragment(Fragment target, boolean pushStack) {
+        // 当前Fragment是目标Fragment不作切换
+        if (mCurrentFragment == target) {
+            return;
+        }
+
         mMap.clear();   // 清理地图
         resetMyLocationMap();    // 自动定位到我的位置
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -156,16 +161,15 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
 
         if (!target.isAdded()) {
             if (mCurrentFragment != null) {
-                transaction.hide(mCurrentFragment).add(R.id.fragment_container, target).commit();
-            } else {
-                transaction.add(R.id.fragment_container, target).commit();
+                transaction.hide(mCurrentFragment);
             }
+            transaction.add(R.id.fragment_container, target).commit();
         } else {
             transaction.hide(mCurrentFragment).show(target).commit();
         }
 
         if (pushStack) {
-            mFragmentBackStack.push(mCurrentFragment);
+            mFragmentBackStack.push(target);
         }
         mCurrentFragment = target;
     }
@@ -292,7 +296,9 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
     }
 
     public void back() {
-        switchFragment(mFragmentBackStack.pop(), false);
+        // 顶层Fragment出栈
+        mFragmentBackStack.pop();
+        switchFragment(mFragmentBackStack.peek(), false);
     }
 
     @Override
@@ -300,8 +306,14 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
         if (location.getExtras().getInt("errorCode") == 0) {
             if (mMyLocation == null) {
                 resetMyLocationMap();
+                mMyLocationStyle.showMyLocation(true);
             }
             mMyLocation = location;
+        } else {
+            if (mMyLocation != null) {
+                mMyLocationStyle.showMyLocation(false);
+            }
+            mMyLocation = null;
         }
     }
 
@@ -354,7 +366,7 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
         if (now - mLastBackTime < 2000) {
             super.onBackPressed();
         } else {
-            if (mFragmentBackStack.isEmpty()) {
+            if (mFragmentBackStack.size() == 1) {
                 ToastUtil.showToast(this, "再按一次退出XMap");
                 mLastBackTime = now;
             } else {

@@ -112,19 +112,32 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         return view;
     }
 
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        if (hidden) {
+            clearData();
+        }
+    }
+
+    private void clearData() {
+        mInputTv.setText("");
+        mSearchListAdapter.clear();
+        mSearchListAdapter.notifyDataSetChanged();
+    }
+
     private void searchPoi(String keyWord) {
         PoiSearch.Query query = new PoiSearch.Query(keyWord, "", "");
         query.setPageSize(DEFAULT_PAGE_SIZE);
         query.setPageNum(mCurrentPage);
-        query.setCityLimit(true);
 
         MainMapActivity activity = (MainMapActivity) getActivity();
-        if (activity != null) {
+        if (activity != null && activity.getMyLocation() != null) {
             Location location = activity.getMyLocation();
-            if (location != null) {
-                LatLonPoint point = new LatLonPoint(location.getLatitude(), location.getLongitude());
-                query.setLocation(point);
-            }
+            LatLonPoint point = new LatLonPoint(location.getLatitude(), location.getLongitude());
+            query.setLocation(point);
+            query.setDistanceSort(false);
+        } else {
+            query.setCityLimit(true);
         }
 
         PoiSearch search = new PoiSearch(getActivity(), query);
@@ -171,6 +184,14 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
             search.setBound(bound);
             search.searchPOIAsyn();
         }
+    }
+
+    private void showHistory() {
+        mHistoryContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void hideHistory() {
+        mHistoryContainer.setVisibility(View.GONE);
     }
 
     private void viewRoute(PoiItem item) {
@@ -230,7 +251,7 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
             SharedPreferences.Editor editor = activity.getSharedPreferences("data", Context.MODE_PRIVATE).edit();
             editor.putString("history_search", "[]");
             editor.apply();
-            mHistoryContainer.setVisibility(View.GONE);
+            hideHistory();
         }
     }
 
@@ -290,11 +311,11 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
     public void onFocusChange(View v, boolean hasFocus) {
         if (hasFocus) {
             if (!mHistorySearches.isEmpty()) {
-                mHistoryContainer.setVisibility(View.VISIBLE);
+                showHistory();
                 mHistoryListAdapter.notifyDataSetChanged();
             }
         } else {
-            mHistoryContainer.setVisibility(View.GONE);
+            hideHistory();
         }
     }
 

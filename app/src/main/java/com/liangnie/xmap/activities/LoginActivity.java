@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         backBT.setOnClickListener(this);
     }
 
-    private void saveLocalUser(User user) {
+    private void saveLoginUser(User user) {
         SharedPreferences.Editor editor = getSharedPreferences("user_info", MODE_PRIVATE).edit();
         editor.putString("username", user.getName());
         editor.apply();
@@ -66,7 +66,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             //跳转到注册页面
             case R.id.tv_actlogin_register:
                 startActivity(new Intent(this, RegisterActivity.class));
-                finish();
                 break;
 
             case R.id.bt_actlogin_login:
@@ -76,7 +75,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     int event = userDB.isExist(username, password);
                     if(event == 1) {
                         User user = new User(username, password);
-                        saveLocalUser(user);
+                        saveLoginUser(user);
                         finish();
                         ToastUtil.showToast(this, "登录成功");
                     } else {

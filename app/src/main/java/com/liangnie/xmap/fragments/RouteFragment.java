@@ -149,14 +149,17 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
     }
 
     private void switchFragment(Fragment target) {
+        if (mCurrentFragment == target) {
+            return;
+        }
+
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
         if (!target.isAdded()) {
             if (mCurrentFragment != null) {
-                transaction.hide(mCurrentFragment).add(R.id.fragment_container, target).commit();
-            } else {
-                transaction.add(R.id.fragment_container, target).commit();
+                transaction.hide(mCurrentFragment);
             }
+            transaction.add(R.id.fragment_container, target).commit();
         } else {
             transaction.hide(mCurrentFragment).show(target).commit();
         }

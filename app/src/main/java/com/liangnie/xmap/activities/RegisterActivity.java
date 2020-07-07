@@ -1,6 +1,5 @@
 package com.liangnie.xmap.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -59,8 +58,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_actregister_back:
-                //返回登录界面
-                startActivity(new Intent(this, LoginActivity.class));
                 finish();
                 break;
 

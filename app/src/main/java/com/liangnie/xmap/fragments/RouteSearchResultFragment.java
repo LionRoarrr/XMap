@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.core.PoiItem;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
@@ -92,7 +93,16 @@ public class RouteSearchResultFragment extends Fragment implements PoiSearch.OnP
         PoiSearch.Query query = new PoiSearch.Query(keyWord, "", "");
         query.setPageSize(SEARCH_PAGE_SIZE);
         query.setPageNum(mCurrentPageNum);
-        query.setCityLimit(true);
+
+        MainMapActivity activity = (MainMapActivity) getActivity();
+        if (activity != null && activity.getMyLocation() != null) {
+            Location location = activity.getMyLocation();
+            LatLonPoint point = new LatLonPoint(location.getLatitude(), location.getLongitude());
+            query.setLocation(point);
+            query.setDistanceSort(false);
+        } else {
+            query.setCityLimit(true);
+        }
 
         PoiSearch search = new PoiSearch(getActivity(), query);
         search.setOnPoiSearchListener(this);
