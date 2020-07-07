@@ -34,6 +34,7 @@ import com.liangnie.xmap.views.LoadMoreListView;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SearchFragment extends Fragment implements SearchView.OnQueryTextListener
@@ -109,20 +110,9 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         nearBank.setOnClickListener(this);
         historyClear.setOnClickListener(v -> clearHistoryList());
 
+        showHistory();
+
         return view;
-    }
-
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        if (hidden) {
-            clearData();
-        }
-    }
-
-    private void clearData() {
-        mInputTv.setText("");
-        mSearchListAdapter.clear();
-        mSearchListAdapter.notifyDataSetChanged();
     }
 
     private void searchPoi(String keyWord) {
@@ -173,9 +163,8 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
             PoiSearch.Query query = new PoiSearch.Query("", poiType, location.getExtras().getString("City"));
             query.setPageSize(DEFAULT_PAGE_SIZE);
             query.setPageNum(mCurrentPage);
-            query.setDistanceSort(true);
 
-            // 设置周边1公里范围
+            // 设置周边5公里范围
             LatLonPoint myPoint = new LatLonPoint(location.getLatitude(), location.getLongitude());
             PoiSearch.SearchBound bound = new PoiSearch.SearchBound(myPoint, 5000);
 
@@ -187,11 +176,15 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
     }
 
     private void showHistory() {
-        mHistoryContainer.setVisibility(View.VISIBLE);
+        if (!mHistoryListAdapter.isEmpty() && mHistoryContainer.getVisibility() != View.VISIBLE) {
+            mHistoryContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     private void hideHistory() {
-        mHistoryContainer.setVisibility(View.GONE);
+        if (mHistoryContainer.getVisibility() != View.GONE) {
+            mHistoryContainer.setVisibility(View.GONE);
+        }
     }
 
     private void viewRoute(PoiItem item) {
@@ -227,6 +220,8 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        } else {
+            searches = new ArrayList<>();
         }
         return searches;
     }
@@ -287,6 +282,7 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
 
     @Override
     public void onPoiSearched(PoiResult poiResult, int i) {
+        hideHistory();
         if (i == 1000) {
             if (!poiResult.getPois().isEmpty()) {
                 mSearchListAdapter.addAll(poiResult.getPois());
@@ -310,12 +306,7 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (hasFocus) {
-            if (!mHistorySearches.isEmpty()) {
-                showHistory();
-                mHistoryListAdapter.notifyDataSetChanged();
-            }
-        } else {
-            hideHistory();
+            showHistory();
         }
     }
 

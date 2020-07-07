@@ -54,10 +54,11 @@ public class MainFragment extends Fragment implements RadioGroup.OnCheckedChange
                 R.anim.fragment_slide_left_exit,
                 R.anim.fragment_slide_right_enter,
                 R.anim.fragment_slide_right_exit);
+
+        if (mCurrentFragment != null) {
+            transaction.hide(mCurrentFragment);
+        }
         if (!target.isAdded()) {
-            if (mCurrentFragment != null) {
-                transaction.hide(mCurrentFragment);
-            }
             transaction.add(R.id.fragment_container, target).commit();
         } else {
             transaction.hide(mCurrentFragment).show(target).commit();

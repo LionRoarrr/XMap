@@ -138,6 +138,9 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
 
     private void clearData() {
         setEndPoi(null);
+        if (getArguments() != null) {
+            getArguments().clear();
+        }
     }
 
     private void initFragment() {
@@ -159,13 +162,14 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
                 R.anim.fragment_slide_left_exit,
                 R.anim.fragment_slide_right_enter,
                 R.anim.fragment_slide_right_exit);
+
+        if (mCurrentFragment != null) {
+            transaction.hide(mCurrentFragment);
+        }
         if (!target.isAdded()) {
-            if (mCurrentFragment != null) {
-                transaction.hide(mCurrentFragment);
-            }
             transaction.add(R.id.fragment_container, target).commit();
         } else {
-            transaction.hide(mCurrentFragment).show(target).commit();
+            transaction.show(target).commit();
         }
 
         mCurrentFragment = target;
@@ -175,6 +179,7 @@ public class RouteFragment extends Fragment implements View.OnClickListener,
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         if (mCurrentFragment != null) {
             transaction.hide(mCurrentFragment).commit();
+            mCurrentFragment = null;
         }
     }
 

@@ -1,6 +1,7 @@
 package com.liangnie.xmap.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,6 +72,7 @@ public class DriveRouteFragment extends Fragment implements View.OnClickListener
     @Override
     public void onHiddenChanged(boolean hidden) {
         if (!hidden) {
+            Log.i("TAG", "onHiddenChanged: 1");
             setData();
         }
     }

@@ -98,7 +98,6 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
     }
 
     public void initView(Bundle savedInstanceState) {
-//        mFabLocation = findViewById(R.id.fab_location);
         mMapView = findViewById(R.id.map_view);
         mMapView.onCreate(savedInstanceState);  // 创建地图
 
@@ -112,7 +111,7 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
         mMap.setOnMyLocationChangeListener(this);   // 设置位置监听
         mMap.setAMapGestureListener(this);  // 设置手势监听
         mMap.setMyLocationStyle(mMyLocationStyle); // 设置定位点样式
-        mMap.setMyLocationEnabled(true);    // 显示定位点
+        mMap.setMyLocationEnabled(true);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM)); // 相机视角缩放
 
         // 地图UI设置
@@ -163,13 +162,13 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
                 R.anim.fragment_slide_left_exit,
                 R.anim.fragment_slide_right_enter,
                 R.anim.fragment_slide_right_exit);
+        if (mCurrentFragment != null) {
+            transaction.hide(mCurrentFragment);
+        }
         if (!target.isAdded()) {
-            if (mCurrentFragment != null) {
-                transaction.hide(mCurrentFragment);
-            }
             transaction.add(R.id.fragment_container, target).commit();
         } else {
-            transaction.hide(mCurrentFragment).show(target).commit();
+            transaction.show(target).commit();
         }
 
         if (pushStack) {
@@ -310,13 +309,9 @@ public class MainMapActivity extends AppCompatActivity implements AMap.OnMyLocat
         if (location.getExtras().getInt("errorCode") == 0) {
             if (mMyLocation == null) {
                 resetMyLocationMap();
-                mMyLocationStyle.showMyLocation(true);
             }
             mMyLocation = location;
         } else {
-            if (mMyLocation != null) {
-                mMyLocationStyle.showMyLocation(false);
-            }
             mMyLocation = null;
         }
     }

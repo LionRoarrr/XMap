@@ -87,6 +87,7 @@
         android:layout_height="match_parent"
         android:background="@drawable/lrt_corner_shape_white"
         android:layout_below="@+id/header"
+        android:visibility="gone"
         android:clickable="true"
         android:focusable="true">
 
