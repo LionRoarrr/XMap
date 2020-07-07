@@ -7,7 +7,6 @@
     tools:context=".activities.LoginActivity">
 
     <RelativeLayout
-        android:id="@+id/rl_actlogin_top"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:background="@color/white"
@@ -48,7 +47,6 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/ll_actlogin_two"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/corner_shape"
@@ -76,6 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
+                android:lines="1"
                 android:hint="请输入用户名"/>
 
         </LinearLayout>
@@ -100,6 +99,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
+                android:lines="1"
                 android:hint="请输入密码"
                 android:inputType="textPassword"/>
 
