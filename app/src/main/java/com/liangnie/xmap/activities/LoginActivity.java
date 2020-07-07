@@ -8,8 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,13 +19,11 @@ import com.liangnie.xmap.utils.ToastUtil;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
     private UserDBHelper userDB;
-    private TextView registerTV;
-    private RelativeLayout topRL;
-    private EditText usernameET;
-    private EditText passwordET;
-    private LinearLayout twoLL;
-    private Button loginBT;
-    private ImageButton backBT;
+    private TextView mRegisterText;
+    private EditText mUsername;
+    private EditText mPassword;
+    private Button mLoginButton;
+    private ImageButton mBack;
 
 
     @Override
@@ -40,18 +36,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void initView() {
         //初始化控件
-        registerTV = findViewById(R.id.tv_actlogin_register);
-        topRL = findViewById(R.id.rl_actlogin_top);
-        usernameET = findViewById(R.id.et_actlogin_username);
-        passwordET = findViewById(R.id.et_actlogin_password);
-        twoLL = findViewById(R.id.ll_actlogin_two);
-        loginBT = findViewById(R.id.bt_actlogin_login);
-        backBT = findViewById(R.id.iv_actlogin_back);
+        mRegisterText = findViewById(R.id.tv_actlogin_register);
+        mUsername = findViewById(R.id.et_actlogin_username);
+        mPassword = findViewById(R.id.et_actlogin_password);
+        mLoginButton = findViewById(R.id.bt_actlogin_login);
+        mBack = findViewById(R.id.iv_actlogin_back);
 
         //设置事件监听器
-        loginBT.setOnClickListener(this);
-        registerTV.setOnClickListener(this);
-        backBT.setOnClickListener(this);
+        mLoginButton.setOnClickListener(this);
+        mRegisterText.setOnClickListener(this);
+        mBack.setOnClickListener(this);
     }
 
     private void saveLoginUser(User user) {
@@ -69,8 +63,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
 
             case R.id.bt_actlogin_login:
-                String username = usernameET.getText().toString().trim();
-                String password = passwordET.getText().toString().trim();
+                String username = mUsername.getText().toString().trim();
+                String password = mPassword.getText().toString().trim();
                 if(!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password)) {
                     int event = userDB.isExist(username, password);
                     if(event == 1) {
